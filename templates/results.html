@@ -1,0 +1,248 @@
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:svg="http://www.w3.org/2000/svg">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+
+    <title>PIQMIe: Results page</title>
+
+    <link rel="stylesheet" href="../css/bootstrap.min.css" type="text/css" media="screen" />
+    <!-- jqGrid CSS stuff -->
+    <link rel="stylesheet" href="../css/ui-redmond/jquery-ui.min.css" type="text/css" media="screen" />
+    <link rel="stylesheet" href="../css/ui.jqgrid.css" type="text/css" media="screen" />
+
+    <style type="text/css">
+
+      iframe {
+          overflow: hidden;
+          border: none;
+          position: absolute;
+          width: 100%;
+          height: 1730px;
+      } 
+
+      table {
+          background-color: white;
+      }
+
+      <!--
+      span.leader {
+          padding: 1px 2px;
+          background-color: orange;
+          color: white;
+      }
+      -->
+
+      a.link:hover {
+          text-decoration: underline;
+      }
+
+      .ui-jqgrid tr.jqgrow td {
+          word-wrap: break-word;
+          white-space: pre-wrap;
+          overflow: hidden;
+          height: auto;
+          vertical-align: top;
+      }
+
+    </style>
+
+  </head>
+  <body>
+    <!-- Load Javascript libs -->
+    <script type="text/javascript" src="../js/d3.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="../js/jquery.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="../js/bootstrap.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="../js/i18n/grid.locale-en.js" charset="utf-8"></script>
+    <script type="text/javascript" src="../js/jquery.jqGrid.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="../js/custom.js" charset="utf-8"></script>
+    <script type="text/javascript">
+    //<![CDATA[
+
+      $(document).ready(function() {
+          var session_id = '$session_id';
+          var exp_states = '$exp_states';
+          var tab_sel = '#myTab li a[value]';
+
+          // fetch and visualize JSON data in each tab
+          $(tab_sel).map(function() { // collect query strings: <a...value="query_str">
+              var query_str = $(this).attr('value');
+              var url = '../rest/' + session_id + '/' + query_str;
+              var throbber = $('#' + query_str + ' .throbber');
+
+              if(query_str == 'grp') {
+                  var grid_sel = '#searchgrid'; // grid selector
+                  searchableGrid(url, grid_sel, session_id, exp_states);
+              } else { // 'statpep', 'statprot' or 'statgrp' selected
+                  var table_sel = '#' + query_str + ' .sumtable'; // table selector
+                  var chart_sel = '#' + query_str + ' .barchart'; // chart selector
+                  d3.json(url, function(error, json) { // fetch JSON data
+                      tabulate(json, table_sel);       // tabulate data
+                      drawChart(json, chart_sel);      // plot data in barchart
+                      throbber.fadeOut();
+                  });
+              }
+          });
+
+          // add tab selector
+          $(tab_sel).click(function(evt) {
+              var query_str = $(this).attr('value');
+              var url = '../rest/' + session_id + '/' + query_str;
+
+              // attach actions to the buttons
+              $('#' + query_str + '\\.svg').click(function() { submitDownloadForm("svg", query_str, session_id); });
+              $('#' + query_str + '\\.pdf').click(function() { submitDownloadForm("pdf", query_str, session_id); });
+              $('#' + query_str + '\\.png').click(function() { submitDownloadForm("png", query_str, session_id); });
+              $('#' + query_str + '\\.json').click(function() { window.open(url, '_blank'); });
+          });
+      });
+
+    //]]>
+    </script>
+
+    <div class="container">
+      <ul class="nav nav-pills" id="myTab">
+        <li><a href="" onclick="window.open('../../');" data-toggle="tab">PIQMIe</a></li>
+        <li class="active"><a href="#download" data-toggle="tab">Download</a></li>
+        <li><a href="#statpep" value="statpep" data-toggle="tab">Peptides</a></li>
+        <li><a href="#statprot" value="statprot" data-toggle="tab">Proteins</a></li>
+        <li><a href="#statgrp" value="statgrp" data-toggle="tab">Protein Groups</a></li>
+        <li><a href="#statregrp" value="statregrp" data-toggle="tab">Regulated Proteins</a></li>
+        <li><a href="#grp" value="grp" data-toggle="tab">Search Grid</a></li>
+        <li><a href="#cmpquant" data-toggle="tab">Scatterplot</a></li>
+      </ul>
+
+      <!-- Hidden <FORM> to submit the SVG data to the server, which will convert it to SVG/PDF/PNG downloadable file.
+          The form is populated and submitted by the JavaScript below. -->
+      <form id="svgform" method="post" action="../saveImage">
+        <input type="hidden" id="session_id" name="session_id" value="" />
+        <input type="hidden" id="query_str" name="query_str" value="" />
+        <input type="hidden" id="output_format" name="output_format" value="" />
+        <input type="hidden" id="data" name="data" value="" />
+      </form>
+
+      <div class="tab-content">
+        <div class="tab-pane fade" id="piqmie" />
+        <div class="tab-pane fade in active" id="download">
+          <legend>Download area for jobID: $session_id</legend>
+          <div class="well">
+            <p>Click <a href="../download/$session_id/${db_file}">here</a> to save your data in the form of a <a href="http://www.sqlite.org">SQLite</a> database (version 3.x).</p>
+            <p>To query your database(s) locally, you could use tools with graphical user interface (GUI) such as <a href="https://code.google.com/p/sqlite-manager/" target="_blank">SQLite Manager</a> Firefox extension (add-on), <a href="http://sqliteman.com" target="_blank">Sqliteman</a> stand-alone software, <a href="http://www.sqlite.org/" target="_blank">sqlite3</a> command-line interface (CLI), or any programming/scripting language with a database access module (SQL interface).</p>
+          </div>
+        </div><!-- download database -->
+
+        <div class="tab-pane fade" id="statpep">
+          <legend>Summary of peptide identifications &amp; quantitations</legend>
+          <div style="overflow: scroll;" class="well">
+            <div class="help-block">Note: Mouse over the abbreviations in the column headers or figure legends to show their full descriptions.</div>
+            <img class="throbber" src="../img/throbber.gif" alt="Loading..." />
+            <div class="sumtable"></div>
+          </div>
+          <div style="overflow: scroll;" class="well">
+            <div class="barchart"></div>
+
+            <!-- Buttons to save figures in SVG, PDF and PNG or show data in JSON -->
+            <div class="text-left"><b>Save as:</b>
+              <button class="btn btn-success" id="statpep.svg" value="">SVG</button>
+              <button class="btn btn-success" id="statpep.pdf" value="">PDF</button>
+              <button class="btn btn-success" id="statpep.png" value="">PNG</button>
+              <button class="btn btn-default" id="statpep.json" value="">JSON</button>
+            </div>
+          </div>
+        </div><!-- peptides -->
+
+        <div class="tab-pane fade" id="statprot">
+          <legend>Summary of database-dependent protein identifications</legend>
+          <div style="overflow: scroll;" class="well">
+            <div class="help-block">Note: Mouse over the abbreviations in the column headers or figure legends to show their full descriptions.</div>
+            <img class="throbber" src="../img/throbber.gif" alt="Loading..." />
+            <div class="sumtable"></div>
+          </div>
+          <div style="overflow: scroll;" class="well">
+            <div class="barchart"></div>
+
+            <!-- Buttons to save figures in SVG, PDF and PNG or show data in JSON -->
+            <div class="text-left"><b>Save as:</b>
+              <button class="btn btn-success" id="statprot.svg" value="">SVG</button>
+              <button class="btn btn-success" id="statprot.pdf" value="">PDF</button>
+              <button class="btn btn-success" id="statprot.png" value="">PNG</button>
+              <button class="btn btn-default" id="statprot.json" value="">JSON</button>
+            </div> 
+          </div>
+        </div><!-- proteins -->
+
+        <div class="tab-pane fade" id="statgrp">
+          <legend>Summary of non-redundant protein identifications &amp; quantitations</legend>
+          <div style="overflow: scroll;" class="well">
+            <div class="help-block">Note: Mouse over the abbreviations in the column headers or figure legends to show their full descriptions.</div>
+            <img class="throbber" src="../img/throbber.gif" alt="Loading..." />
+            <div class="sumtable"></div>
+          </div><!-- .well -->
+          <div style="overflow: scroll;" class="well">
+            <div class="barchart"></div>
+
+            <!-- Buttons to save figures in SVG, PDF and PNG or show data in JSON -->
+            <div class="text-left"><b>Save as:</b>
+              <button class="btn btn-success" id="statgrp.svg" value="">SVG</button>
+              <button class="btn btn-success" id="statgrp.pdf" value="">PDF</button>
+              <button class="btn btn-success" id="statgrp.png" value="">PNG</button>
+              <button class="btn btn-default" id="statgrp.json" value="">JSON</button>
+            </div>
+          </div>
+        </div><!-- protein groups -->
+
+        <div class="tab-pane fade" id="statregrp">
+          <legend>Summary of potentially regulated non-redundant proteins</legend>
+          <div style="overflow: scroll;" class="well">
+            <div class="help-block">Note: Mouse over the abbreviations in the column headers or figure legends to show their full descriptions.</div>
+            <img class="throbber" src="../img/throbber.gif" alt="Loading..." />
+            <div class="sumtable"></div>
+          </div><!-- .well -->
+          <div style="overflow: scroll;" class="well">
+            <div class="barchart"></div>
+
+            <!-- Buttons to save figures in SVG, PDF and PNG or show data in JSON -->
+            <div class="text-left"><b>Save as:</b>
+              <button class="btn btn-success" id="statregrp.svg" value="">SVG</button>
+              <button class="btn btn-success" id="statregrp.pdf" value="">PDF</button>
+              <button class="btn btn-success" id="statregrp.png" value="">PNG</button>
+              <button class="btn btn-default" id="statregrp.json" value="">JSON</button>
+            </div> 
+          </div>
+        </div><!-- regulated protein groups -->
+
+
+        <div class="tab-pane fade" id="grp">
+          <legend />
+          <!-- Search Grid -->
+          <div style="overflow: scroll;" class="well">
+            <div class="help-block">Note: Scroll up, down, left or right to show more rows or columns. Click on a groupID to open the <i>Peptide coverage map.</i></div>
+            <!-- text search field
+              <fieldset>
+              <input id="searchText" type="text" value="test2" name="a" />
+              <button id="mySearch" type="button">Search</button>
+            </fieldset>-->
+            <table id="searchgrid"><tr><td /></tr></table>
+            <div id="pager"></div>
+            <br />
+
+            <!-- Button to show data in JSON -->
+            <div class="text-left"><b>Save as:</b>
+              <a href="../rest/$session_id/grp" target="_blank"><button class="btn btn-default" value="">JSON</button></a>
+            </div>
+          </div>
+        </div><!-- Search Grid -->
+
+        <div class="tab-pane fade" id="cmpquant">
+          <legend>Scatterplot of protein quantitations</legend>
+          <iframe src="../scatterplot/$session_id" scrolling="no" seamless=""></iframe>
+        </div><!-- scatterplot -->
+      </div><!-- .tab-content -->
+    </div><!-- .container -->
+  </body>
+</html>

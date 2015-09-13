@@ -1,0 +1,308 @@
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:svg="http://www.w3.org/2000/svg"
+      xmlns:xlink="http://www.w3.org/1999/xlink">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+ 
+    <title>PIQMIe: Scatterplot</title>
+  
+    <style type="text/css">
+
+      a.link:hover {
+          text-decoration: underline;
+      }
+
+      .ui-jqgrid tr.jqgrow td {
+          word-wrap: break-word;
+          white-space: pre-wrap;
+          overflow: hidden;
+          height: auto;
+          vertical-align: top;
+      }
+
+    </style>
+
+    <link rel="stylesheet" href="../css/bootstrap.min.css" type="text/css" media="screen" />
+    <!-- jqGrid CSS stuff -->
+    <link rel="stylesheet" href="../css/ui-redmond/jquery-ui.min.css" type="text/css" media="screen" />
+    <link rel="stylesheet" href="../css/ui.jqgrid.css" type="text/css" media="screen" />
+
+  </head>
+
+  <body>
+    <!-- Load Google JSAPI -->
+    <script type="text/javascript" src="https://www.google.com/jsapi" charset="utf-8"></script>
+    <!-- Load local D3.js and jQuery -->
+    <script type="text/javascript" src="../js/d3.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="../js/jquery.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="../js/i18n/grid.locale-en.js" charset="utf-8"></script>
+    <script type="text/javascript" src="../js/jquery.jqGrid.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="../js/pearson-correlation.js" charset="utf-8"></script>
+    <script type="text/javascript" src="../js/custom.js" charset="utf-8"></script>
+    <script type="text/javascript" charset="utf-8">
+    //<![CDATA[
+
+      //Load the Google Visualization API and the chart
+      google.load("visualization", "1", { packages: ["corechart"] });
+
+      //Set callback
+      //google.setOnLoadCallback(draw2Dscatter);
+
+      var session_id = '$session_id';
+      var query_str = 'cmpquant';
+      var qpar = { // lookup table for URL query parameters
+          'exp1'      : '$sel_exp_name_1',
+          'exp2'      : '$sel_exp_name_2',
+          'ratio1'    : '$sel_ratio_1',
+          'ratio2'    : '$sel_ratio_2',
+          'cfratio'   : '$sel_cfratio',
+          'cfpvalue'  : '$sel_cfpvalue'
+      };
+
+      function filterProtNames(str) {
+          if(!str) return '-';
+          var names = str.split('","');
+
+          for (var i = 0; i < names.length; i++) {
+              names[i] = '\u2219 ' + names[i].replace(/"/g, ''); // prepend a bullet
+          }
+          return names.join('\n');
+      }
+
+      // Define callback function
+      function draw2Dscatter(url) {
+          var p = 2; // fix precision to 2 decimals
+          var n = 0; // total number of protein groups
+          var counter = new Array(0, 0, 0, 0); // count data points in the four quadrants of the scatterplot
+          var vec1 = []; // vector of log2 ratios
+          var vec2 = []; // vector of log2 ratios
+          var throbber = $('.throbber');
+
+          throbber.fadeIn();
+
+          d3.json(url, function(error, json) {
+              // create data table object
+              var data = new google.visualization.DataTable();
+              var cfpvalue = $('#cfpvalue').val();
+              var cfratio = $('#cfratio').val();
+
+              data.addColumn('number', 'ratio1');
+              data.addColumn('number', 'ratio2');
+              data.addColumn({ id: 'details', type: 'string', role: 'tooltip' }); // custom tooltip content
+              data.addColumn('number', 'grpId');
+              data.addRows(json.map(function(d) {
+                  var arr = [];
+                  var grpId = d.grp_id;
+                  var grpEvid = d.grp_evidence;
+                  var lgR1 = d.log2_ratio1; // protein log2 ratio
+                  var lgR2 = d.log2_ratio2;
+                  var fc1 = d.fc1.toFixed(p); // fold-change given protein ratio
+                  var fc2 = d.fc2.toFixed(p);
+                  var sd1 = (d.sd_ratio1 === null) ? '-' : d.sd_ratio1.toFixed(p); // standard deviation of peptide log2 ratios
+                  var sd2 = (d.sd_ratio2 === null) ? '-' : d.sd_ratio2.toFixed(p);
+                  var nq1 = (d.n_pep_qts1 === null) ? '-' : d.n_pep_qts1; // number of peptide quantitations used for protein ratio
+                  var nq2 = (d.n_pep_qts2 === null) ? '-' : d.n_pep_qts2;
+                  var sig1 = (d.sig_ratio1 === null) ? '-' : d.sig_ratio1; // significance B of protein ratio (adjusted P-value)
+                  var sig2 = (d.sig_ratio2 === null) ? '-' : d.sig_ratio2;
+                  var protNames = filterProtNames(d.prot_names);
+                  var geneNames = (d.gene_names === null) ? '-' : d.gene_names;
+                  //var protAccs = d.prot_accs;
+                  var tooltip = 'GroupID: ' + grpId + '\nQuantitations: log2(' + lgR1 + ',' + lgR2 + ') FC(';
+                      tooltip += fc1 + ',' + fc2 + ') SD(' + sd1 + ',' + sd2 + ') Nq(' + nq1 + ',' + nq2;
+                      tooltip += ') Sig(' + sig1 + ',' + sig2 + ')\n Species: ' + d.org + '\nEvidence: ';
+                      tooltip += grpEvid + '\nGenes: ' + geneNames + '\nProtein names:\n' + protNames;
+
+                  arr.push(lgR1, lgR2, tooltip, grpId);
+                  vec1.push(lgR1);
+                  vec2.push(lgR2);
+                  // count data points in the four quandrants of the scatterplot
+                  if (lgR1 < 0 && lgR2 >= 0) {        // top-left
+                      counter[0] += 1;
+                  } else if (lgR1 >= 0 && lgR2 >= 0) { // top-right
+                      counter[1] += 1;
+                  } else if (lgR1 >= 0 && lgR2 < 0) { // bottom-left
+                      counter[2] += 1;
+                  } else if (lgR1 < 0 && lgR2 < 0) {  // bottom-right
+                      counter[3] += 1;
+                  }
+                  n = counter[0] + counter[1] + counter[2] + counter[3]; // sum-up all data points
+
+                  return arr;
+              }));
+
+              // add the number of protein groups and Pearson's correlation coefficient to the header
+              var corr = pearsonsCorrelation(vec1, vec2).toFixed(p);
+              var info = '<label>Number of protein groups:</label>&nbsp;n=' + counter.join('+') + '=' + n + '&nbsp;&nbsp;<label>';
+              info += (isNaN(corr)) ? '' : "Pearson's correlation coefficient:</label>&nbsp;r=" + corr;
+              $("#header").html(info);
+
+              // define options for visualization
+              var options = {
+                  title: '',
+                  chartArea: { width: 640, height: 640},
+                  hAxis: { title: qpar.exp1 + ': log2(' + qpar.ratio1 + ')' },
+                  vAxis: { title: qpar.exp2 + ': log2(' + qpar.ratio2 + ')' },
+                  series: [{ color: 'gray', pointSize: 3 }],
+                  legend: 'none',
+                  fontSize: 12,
+		  intervals: { style: 'bars' },
+                  explorer: {},
+                  tooltip: { textStyle: { fontSize: 10 }, trigger: 'selection', isHtml: false } // HTML instead of SVG tooltip
+              };
+
+              // instantiate chart
+              var chart = new google.visualization.ScatterChart(document.getElementById(query_str));
+
+              // create a view of the multicolumn data table
+              var view = new google.visualization.DataView(data);
+
+              // filter data table to get only the first three columns
+              view.setColumns([0, 1, 2]);
+
+              // draw chart
+              chart.draw(view, options);
+
+              // set a 'select' event listener for the chart
+              google.visualization.events.addListener(chart, 'rightclick', function(evt) {
+                  var selection = chart.getSelection();
+                  if (!isNaN(selection)) { return; }
+                  var row = selection[0].row;
+                  var grp_id = data.getValue(row, 3);
+                  var url = '../pepmap/' + session_id + '?grp_id=' + grp_id;
+                  
+                  // TODO: couple selected protein group(s) in the scatterplot to the search grid
+                  $("tr td a:contains('" + grp_id + "')").parents('tr').addClass('ui-state-highlight');
+
+                  window.open(url, '_blank');
+              });
+
+              throbber.fadeOut();
+              tabulateScatterplotData('#grid', json, session_id);
+          });
+      }
+
+      // Main
+      $(document).ready(function() {
+          // draw initial 2D scatterplot
+          var path = '../rest/' + session_id + '/' + query_str;
+          var url = getURL(path, qpar);
+          var prev_url = '';
+          var throbber = $('.throbber');
+          var btn_pressed = false;
+
+          throbber.fadeOut();
+
+          // set URL for retrieving JSON data
+          $('.json').click(function() {
+              $(this).attr('href', url);
+          });
+
+          $('select').change(function(evt) { // Note: click() does not work in Google Chrome
+              var qkey = this.className;
+              var qval = $(this).val();
+              url = getURL(path, qpar, qkey, qval);
+          });
+
+          $('input').change(function(evt) {
+              var qkey = this.id;
+              var qval = $(this).val();
+              url = getURL(path, qpar, qkey, qval);
+          }); 
+
+          // draw scatterplot and tabulate data
+          $('#btn_show').click(function(evt) {
+              btn_pressed = true;
+              if (url !== prev_url) {
+                  draw2Dscatter(url);
+                  $('#grid').GridUnload();
+                  prev_url = url;
+              }
+          });
+
+          // attach actions to the buttons
+          $('#' + query_str + '\\.svg').click(function() { if (btn_pressed) submitDownloadForm("svg", query_str, session_id); });
+          $('#' + query_str + '\\.pdf').click(function() { if (btn_pressed) submitDownloadForm("pdf", query_str, session_id); });
+          $('#' + query_str + '\\.png').click(function() { if (btn_pressed) submitDownloadForm("png", query_str, session_id); });
+          $('#' + query_str + '\\.json').click(function() { if (btn_pressed) window.open(url); });
+      });
+
+    //]]>
+    </script>
+
+    <!-- Hidden <FORM> to submit the SVG data to the server, which will convert it to SVG/PDF/PNG downloadable file.
+        The form is populated and submitted by the JavaScript below. -->
+    <form id="svgform" method="post" action="../saveImage">
+      <input type="hidden" id="session_id" name="session_id" value="" />
+      <input type="hidden" id="query_str" name="query_str" value="" />
+      <input type="hidden" id="output_format" name="output_format" value="" />
+      <input type="hidden" id="data" name="data" value="" />
+    </form>
+
+    <div class="well" style="width: 800px">
+      <div>
+        <label for="exp1">Experiment 1:&nbsp;</label>
+        <select class="exp1" py:if="exp_names">
+          <option py:for="exp in exp_names" value="${exp}">${exp}</option>
+        </select>&nbsp;
+
+        <label for="ratio1">norm. protein ratio:&nbsp;</label>
+        <select class="ratio1" py:if="ratio_types">
+          <option py:for="ratio_type in ratio_types" value="${ratio_type}">${ratio_type}</option>
+        </select>&nbsp;on horizontal x-axis  
+        <button style="float: right;" class="btn btn-primary" id="btn_show">Show</button>
+      </div>
+
+      <div>
+        <label for="exp2">Experiment 2:&nbsp;</label>
+        <select class="exp2" py:if="exp_names">
+          <option py:for="exp_name in exp_names" value="${exp_name}">${exp_name}</option>
+        </select>&nbsp;
+
+        <label for="ratio2">norm. protein ratio:&nbsp;</label>
+        <select class="ratio2" py:if="ratio_types">
+          <option py:for="ratio_type in ratio_types" value="${ratio_type}">${ratio_type}</option>
+        </select>&nbsp;on vertical y-axis
+      </div>
+
+      <div>
+        <label for="cfratio">FC cutoff:</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <input type="range" id="cfratio" name="cfratio" min="1" max="10" step="0.1" value="1" oninput="ratio.value=cfratio.value" />
+        <output id="ratio" name="ratio" for="cfratio">1</output>
+      </div>
+
+      <div>
+        <label for="cfpvalue">P-value cutoff:</label>&nbsp;&nbsp;
+        <input type="range" id="cfpvalue" name="cfpvalue" min="0" max="1" step="0.01" value="1" oninput="pvalue.value=cfpvalue.value" disabled="$cfpvalue_ctrl" />
+        <output id="pvalue" name="pvalue" for="cfpvalue">1</output>
+      </div>
+    </div><!-- .well -->
+    
+    <div class="well text-center" style="width: 800px; height: 900px;">
+      <div id="header"></div>
+      <div class="help-block">Note: Select a data point by left mouse click to show its tooltip. Right-click on the point to open the <i>Peptide coverage map.</i> Use the scroll wheel to zoom in and out of the plot. Change focus by moving the mouse while holding its left button.</div>
+
+      <img class="throbber" src="data:image/gif;base64,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" alt="Loading..." />
+      <div id="cmpquant" style="width: 760px; height: 760px;" />
+
+      <!-- Buttons to save figures in SVG, PDF and PNG or show data in JSON -->
+      <div class="text-left"><b>Save as:</b>
+        <button class="btn btn-success" id="cmpquant.svg" value="">SVG</button>
+        <button class="btn btn-success" id="cmpquant.pdf" value="">PDF</button>
+        <button class="btn btn-success" id="cmpquant.png" value="">PNG</button>
+        <button class="btn btn-default" id="cmpquant.json" value="">JSON</button>
+      </div>
+    </div>
+
+    <div>
+      <table id="grid"><tr><td /></tr></table>
+      <div id="pager"></div>
+    </div><!-- tabulate scatterplot data -->
+  </body>
+</html>
+

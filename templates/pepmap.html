@@ -1,0 +1,332 @@
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:svg="http://www.w3.org/2000/svg"
+      xmlns:xlink="http://www.w3.org/1999/xlink">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>PIQMIe: Peptide coverage map</title>
+    <link rel="stylesheet" href="../css/bootstrap.min.css" type="text/css" media="screen" />
+  </head>
+  <body>
+    <!-- Load local D3.js and jQuery -->
+    <script type="text/javascript" src="../js/d3.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="../js/jquery.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="../js/custom.js" charset="utf-8"></script>
+    <script type="text/javascript" charset="utf-8">
+    //<![CDATA[
+
+      var session_id = '$session_id';
+      var query_str = 'pepmap';
+      var qpar = { // lookup table for URL query parameters
+          'grp_id'  : '$sel_grp_id',
+          'exp'     : '$sel_exp_name'
+      };
+
+      var bool_draw = false; // 'false' if no data to draw otherwise 'true'
+
+      /*function getURL(qkey, qval) {
+          var base_url = '../rest/' + session_id + '/pepmap';
+          var query_str = '';
+          var tmp = [];
+
+          if (qkey && qval) { // set query field
+              qpar[qkey] = qval;
+          }
+
+          // store query key-value pairs
+          for (key in qpar) {
+              tmp.push(key + '=' + encodeURIComponent(qpar[key])); // encode special chars 
+          }
+
+          query_str = tmp.join("&");
+
+          return base_url + "?" + query_str; // return constructed URL
+      }*/
+
+
+      function initArray(size, value) {
+          var arr = [];
+          for (var i = 0; i < size; ++i) {
+              arr.push(value);
+          }
+          return arr;
+      }
+
+      // Draw peptide coverage map
+      function drawPeptideMap(url) {
+          $('#loading').fadeIn();
+
+          d3.json(url, function(error, json) {
+              var protIds = json.map(function(d) { return d.prot_acc; });
+              var header = '<label>Group ID:</label>&nbsp;$sel_grp_id&nbsp;&nbsp;';
+                  header += '<label>Size:</label>&nbsp;' + protIds.length + '<br />';
+                  header += '<label>Selected:</label>&nbsp;' + qpar.exp + '&nbsp;&nbsp;';
+
+              $('#header').html(header);
+
+              if(json.length == 0) {
+                  bool_draw = false;
+                  alert('Sorry, there is nothing to draw; no peptides were found for the selected experiment(s).');
+                  d3.select('svg').remove();
+                  $('#loading').fadeOut();
+                  return;
+              }
+
+              var maxProtLen = d3.max(json, function(d) { return d.prot_len; });
+              var margin = {top: 40, right: 20, bottom: 40, left: 20},
+                  width = 800 - margin.left - margin.right,
+                  height = protIds.length * 20;
+
+              json.forEach(function(d) {// transform JSON data
+                  var entries = d.pep_map.split(';');
+                  var peptides = [];
+                  var seqcov = 0; // peptide sequence coverage
+                  var bitvec = initArray(d.prot_len, 0); // init helper array for calculating seqcov
+
+                  for (var i = 0; i < entries.length; i++) {
+                      var pep = entries[i].split(':');
+                      var id = pep[0], pos = pep[1].split(','), seq = pep[2];
+
+                      for (var j = 0; j < pos.length; j++) {
+                          var tmp = pos[j].split('-');
+                          var start = tmp[0], end = tmp[1];
+
+                          peptides.push({
+                              'db': d.db,
+                              'prot_acc': d.prot_acc,
+                              'prot_len': d.prot_len,
+                              'pep_id': id,
+                              'pep_seq': seq,
+                              'start': start,
+                              'end': end
+                          });
+
+                          for (var k = start - 1; k < end; k++) { // set matching positions to 1
+                              bitvec[k] = 1;
+                          }
+                      }
+                  }
+
+                  seqcov = bitvec.filter(function(one) { return one == 1 }).length / d.prot_len;
+                  d.seq_cov = seqcov; // add sequence coverage to JSON
+                  d.n_pep_ids = entries.length; // add # of peptide IDs to JSON
+
+                  delete d.pep_map;
+                  d.pep_map = peptides;
+              });
+
+              var pepIds = [];
+
+              json.map(function(d) {
+                  d.pep_map.forEach(function(c){
+                      pepIds.push(c.pep_id);
+                  })
+              });
+
+              var x = d3.scale.linear()
+                  .domain([0, maxProtLen])
+                  .range([0, width])
+                  .nice();
+
+              var xAxis = d3.svg.axis()
+                  .scale(x)
+                  .orient("bottom");
+
+              var y0 = d3.scale.ordinal()
+                  .domain(protIds)
+                  .rangeRoundBands([0, height]);
+
+              var fmtype = (maxProtLen > 1000) ? '.2s' : 'd';
+
+              function setProtColor(db, is_lead) {
+                  var color = (db === 'UniProtKB/Swiss-Prot') ? 'lightblue' : 'lightgray';
+                  color = (is_lead) ? 'lightgreen' : color;
+
+                  return color;
+              }
+          
+              xAxis.tickFormat(d3.format(fmtype));
+
+              d3.select('svg').remove();
+              
+              var svg = d3.select('#pepmap').append('svg')
+                  .attr('xmlns', d3.ns.prefix.svg)
+                  .attr('xmlns:xmlns:xlink', d3.ns.prefix.xlink) // hack: doubling 'xmlns' so it doesn't dissapear from DOM
+                  .attr('width', width + margin.left + margin.right)
+                  .attr('height', height + margin.top + margin.bottom)
+                  .attr('style', 'background-color: white')
+                  .append('g')
+                  .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+              svg.append('g')
+                  .attr('class', 'xAxis')
+                  .call(xAxis)
+
+              svg.append('text')
+                  .attr('class', 'x label')
+                  .attr('x', width / 2)
+                  .attr('y', 0)
+                  .attr('dy', '-1em')
+                  .attr('style', 'text-anchor: middle;')
+                  .text('Protein sequence length (aa)');
+
+              var protein = svg.selectAll('g.protein')
+                  .data(json)
+                  .enter().append('g')
+                  .classed('protein', true)
+                  .attr('id', function(d) { return d.prot_acc; })
+                  .attr('transform', 'translate(0,' + margin.top + ')');
+             
+              svg.selectAll('g.protein')
+                  .append('a')
+                  .attr('target', '_blank')
+                  .attr('xlink:href', function(d) {
+                      return 'http://www.uniprot.org/uniprot/' + d.prot_acc;  // link to UniProt
+                  })
+                  .append('line')
+                  .attr('x1', 0)
+                  .attr('y1', function(d) { return y0(d.prot_acc); })
+                  .attr('x2', function(d) { return x(d.prot_len); })
+                  .attr('y2', function(d) { return y0(d.prot_acc); })
+                  .style('stroke', function(d) { return setProtColor(d.db, d.is_lead_prot); })
+                  .style('stroke-width', 7)
+                  .on('mouseover', function(){ d3.select(this).style('stroke-width', 12); })
+                  .on('mouseout', function(){ d3.select(this).style('stroke-width', 7); })
+                  .append('title') // add a simple tooltip
+                  .text(function(d) {
+                      var txt = (d.is_lead_prot) ? '*Leading protein* ' : '';
+                      txt += d.db + ':' + d.prot_acc;
+                      txt += (d.gene) ? ' [' + d.gene + '] ' : '[-]';
+                      txt += d.des + ', ';
+                      txt += Math.round(d.seq_cov * d.prot_len) + ' out of ' + d.prot_len + ' aa residues covered (';
+                      txt += (d.seq_cov * 100).toFixed(2) + '%) by ' + d.n_pep_ids + ' peptide(s).';
+                      return txt;
+                  });
+
+              svg.selectAll('g.protein')
+                  .append('text')
+                  .attr('x', 0)
+                  .attr('y', function(d) { return y0(d.prot_acc) - 6; })
+                  .style('font-size', '8px')
+                  .text(function(d) {
+                      return d.prot_acc;
+                  });
+
+              protein.selectAll('g.peptide')
+                  .data(function(d) { return d.pep_map; })
+                  .enter().append('g')
+                  .classed('peptide', true)
+                  .attr('id', function(d) { return d.pep_id + '_' + d.start + '_' + d.end; });
+
+              protein.selectAll('g.peptide')
+                  .append('a')
+                  .attr('target', '_blank')
+                  .attr('xlink:href', function(d) {
+                      return 'http://www.uniprot.org/blast/?about=' + d.prot_acc + '[' + d.start + '-' + d.end + ']'; // link to UniProtKB blastp service
+                  })
+                  .append('line')
+                  .attr('x1', function(d) { return x(d.start); })
+                  .attr('y1', function(d) { return y0(d.prot_acc); })
+                  .attr('x2', function(d) { return x(d.end); })
+                  .attr('y2', function(d) { return y0(d.prot_acc); })
+                  .style('stroke', 'red')
+                  .style('stroke-width', 12)
+                  .style('stroke-opacity', 0.1)
+                  .on('mouseover', function(){
+                      d3.select(this).style('stroke-opacity', 1).style('stroke-width', 15);
+                  })
+                  .on('mouseout', function(){
+                      d3.select(this).style('stroke-opacity', 0.1).style('stroke-width', 12);
+                  })
+                  .append('title') // add a simple tooltip
+                  .text(function(d) {
+                      var txt = 'Peptide(s) at positions: ';
+                      txt += d.start + '-' + d.end + ' (' + (d.end - d.start + 1) + ' aa)';
+                      txt += ' with sequence: ' + d.pep_seq + '.';
+                      return txt;
+                  });
+                  $('#loading').fadeOut();
+                  bool_draw = true;
+              // style x-axis including tick marks
+              svg.selectAll('g.xAxis line, g.xAxis path').attr('style', 'fill: none; stroke: black; shape-rendering: crispEdges;');
+          });
+      }
+
+      //Main
+      $(document).ready(function() {
+          // draw initial 2D scatterplot
+          var path = '../rest/' + session_id + '/' + query_str;
+          var url = getURL(path, qpar);
+          var prev_url = '';
+          var header = '';
+
+          drawPeptideMap(url);
+          
+          $('select').change(function(evt) {
+              var qkey = this.className;
+              var qval = $(this).val();
+              url = getURL(path, qpar, qkey, qval);
+          });
+
+          $('#btn_show').click(function(evt) {
+              if (url !== prev_url) {
+                  drawPeptideMap(url);
+                  prev_url = url;
+              }
+          });
+
+	  // attach actions to the buttons
+          $('#' + query_str + '\\.svg').click(function() { if (bool_draw) submitDownloadForm('svg', query_str, session_id); });
+          $('#' + query_str + '\\.pdf').click(function() { if (bool_draw) submitDownloadForm('pdf', query_str, session_id); });
+          $('#' + query_str + '\\.png').click(function() { if (bool_draw) submitDownloadForm('png', query_str, session_id); });
+          $('#' + query_str + '\\.json').click(function() { if (bool_draw) window.open(url); });
+      });
+
+    //]]>
+    </script>
+
+    <div class="container">
+      <legend>Peptide coverage map</legend>
+      <div style="margin-right: 5px;" class="well col-sm-2 text-center">
+        <label for="exp">Experiment(s):</label>&nbsp;<br />
+        <select multiple="multiple" class="exp" py:if="exp_names">
+          <option py:for="exp in exp_names" value="${exp}">${exp}</option>
+        </select>
+        <span class="help-block">default: all selected</span>
+        <button class="btn btn-primary" id="btn_show">Show</button>
+      </div>
+
+      <!-- Hidden <FORM> to submit the SVG data to the server, which will convert it to SVG/PDF/PNG downloadable file.
+          The form is populated and submitted by the JavaScript below. -->
+      <div>
+        <form id="svgform" method="post" action="../saveImage">
+          <input type="hidden" id="session_id" name="session_id" value="" />
+          <input type="hidden" id="query_str" name="query_str" value="" />
+          <input type="hidden" id="output_format" name="output_format" value="" />
+          <input type="hidden" id="data" name="data" value="" />
+        </form>
+      </div>
+
+      <div style="overflow: scroll;" class="well col-sm-9 text-center">
+        <div id="header" />
+        <div class="help-block">Note: Mouse over a protein or a peptide to show more information in the tooltip.</div>
+        <img id="loading" src="data:image/gif;base64,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" alt="Loading..." />
+        <div id="pepmap" />
+      
+        <!-- Buttons to save figures in SVG, PDF and PNG or show data in JSON -->
+        <div class="text-left"><b>Save as:</b>
+          <button class="btn btn-success" id="pepmap.svg">SVG</button>
+          <button class="btn btn-success" id="pepmap.pdf">PDF</button>
+          <button class="btn btn-success" id="pepmap.png">PNG</button>
+          <button class="btn btn-default" id="pepmap.json">JSON</button>
+        </div>
+
+      </div>
+    </div>
+  </body>
+</html>
