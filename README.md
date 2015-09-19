@@ -8,15 +8,16 @@ Description
 Dependencies
 ------------
 Python modules:	
-+ cherrypy (3.2.2)
-+ genshi (0.7)
-+ sqlite3 (2.6.0)
-+ cairosvg (1.0.6)
++ cherrypy (>=3.2.2)
++ genshi (>=0.7)
++ sqlite3 (>=2.6.0)
++ cairosvg (>=1.0.6)
++ magic (>=0.4.3)
 
 Javascript libraries:
-+ jQuery (1.11.0)
-+ jqGrid (4.6.0)
-+ D3.js (3.3.6)
++ jQuery (>=1.11.0)
++ jqGrid (>=4.6.0)
++ D3.js (>=3.3.6)
 
 Installation
 ------------
