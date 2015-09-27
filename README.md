@@ -21,22 +21,33 @@ Javascript libraries:
 
 Installation
 ------------
-Download the source files and edit the config file.
+
+Download the source files, set-up user data directory and config the web app.
+```
+git clone https://github.com/arnikz/PIQMIe.git
+```
+
+```
+mkdir <DATA_DIR>                          # create dir for user data
+cd PIQMIe/sampledata/sampledata.tar.bz2   # copy sample data
+tar xvf sampledata.tar.bz2                # extract input files from the archive
+x evidence.txt        # MaxQuant peptide list
+x proteinGroups.txt   # MaxQuant protein list
+x HUMAN.fasta         # protein sequence library (human proteome)
+```
 
 ```
 cd PIQMIe/conf
 vim dev.conf # or prod.conf
-```
 
-```
-tools.staticdir.root = "path_to_your_PIQMIe_base_dir"
-tools.sessions.storage_path = "path_to_your_data_dir"
+tools.staticdir.root = "<APP_BASE_DIR>"
+tools.sessions.storage_path = "<DATA_DIR>"
 ```
 
 Start up the web server.
 
 ```
-cd ../../
+cd <APP_BASE_DIR>
 ```
 
 *for development*
@@ -53,9 +64,27 @@ sudo cherryd -i PIQMIe -c PIQMIe/conf/prod.conf
 
 Enter `http://localhost:8080/` in your web browser to see the *PIQMIe* front page.
 
-Upload your MS data set i.e. MaxQuant result files including FASTA sequence library to the web server and press the *Submit* button to process it. Alternatively, you could use the sample data set on human bone development and mineralization ([Alves *et al.*, 2013](http://www.ncbi.nlm.nih.gov/pubmed/23781072)).
+Upload your MS data set (i.e. MaxQuant result files including FASTA sequence library) to the web server and press the *Submit* button to process the files. Alternatively, you could use the sample data set (*sampledata.tar.bz2*) on human bone development and mineralization ([Alves *et al.*, 2013](http://www.ncbi.nlm.nih.gov/pubmed/23781072)). After processing the input files, a new sub-directory (*jobID*) will be created in the *DATA_DIR*.
 
 ```
-cd PIQMIe/sampledata
-tar xvzf sample.tar.gz
+cd <DATA_DIR>/<jobID>
+ls
+EXPERIMENT.dat
+HUMAN.fasta
+PEP2PROT.dat
+PEPTIDE.dat
+PEPTIDE_QUANT.dat
+PGROUP.dat
+PGROUP_QUANT.dat
+PROT2GRP.dat
+PROTEIN.dat
+evidence.txt
+proteinGroups.txt
+sampledata.sqlite
 ```
+
+```
+cd ../
+mv <jobID> a000000000000000000000000000000000000001 # set-up a default dir for sample data
+```
+
