@@ -1,4 +1,7 @@
 #!/bin/bash
+#
+# This script is intended to be used with the cron utility.
+#
 
 DATA_DIR=$1              # data directory with PIQMIe jobs
 JOBS_FILE=$2             # text file with jobIDs to be kept
