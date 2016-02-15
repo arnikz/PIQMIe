@@ -30,6 +30,10 @@ git clone https://github.com/arnikz/PIQMIe.git
 ```
 
 ```
+pip install -r requirements.txt
+```
+
+```
 mkdir <DATA_DIR>                          # create dir for user data
 cd PIQMIe/sampledata
 tar xvf sampledata.tar.bz2                # extract input files from the archive
