@@ -1,4 +1,4 @@
-[PIQMIe](http://piqmie.semiqprot-emc.cloudlet.sara.nl/)
+[PIQMIe](http://piqmie.biotools.nl)
 =======
 
 Description
