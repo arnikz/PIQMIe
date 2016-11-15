@@ -1,5 +1,6 @@
 [PIQMIe](http://piqmie.biotools.nl)
 =======
+[![DOI](https://zenodo.org/badge/42406525.svg)](https://zenodo.org/badge/latestdoi/42406525)
 
 Description
 -----------
