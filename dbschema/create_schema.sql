@@ -1,72 +1,72 @@
 --
 -- Written by: Arnold Kuzniar
 --
--- Last update: 02/02/2015
+-- Last update: 20/12/2017
 --
 
 --
--- Table structure for table PEPTIDE.
+-- Table PEPTIDE.
 --
 
 DROP TABLE IF EXISTS PEPTIDE;
 CREATE TABLE PEPTIDE
 -- stores partial data from the uploaded 'evidence.txt' file
 (
-    pep_id	INTEGER NOT NULL, -- internal peptide ID
-    raw_file	TEXT    NOT NULL, -- name of the RAW file from which the spectral data was derived
-    seq		TEXT    NOT NULL, -- peptide sequence
-    mods	TEXT,             -- peptide modifications in the form of mod(AA): pos1,pos2...
-    charge	INTEGER NOT NULL, -- charge of the peptide fragment
-    mass	REAL    NOT NULL, -- predicted monoisotopic mass of the identified peptide sequence (Da)
-    retime	REAL    NOT NULL, -- calibrated retention time (min)
-    pep_score	REAL    NOT NULL, -- Posterior Error Probability (PEP) score of the peptide identification
-    res_fwhm	REAL,             -- resolution of the precursor ion measured in Full Width at Half Maximum (FWHM).
-    is_decoy	INTEGER NOT NULL, -- peptide is (not) a false positive hit (decoy)
-    is_cont	INTEGER NOT NULL, -- peptide is (not) a contaminant
+    pep_id    NUMERIC NOT NULL, -- internal peptide ID
+    raw_file  TEXT NOT NULL,    -- name of the RAW file from which the spectral data was derived
+    seq       TEXT NOT NULL,    -- peptide sequence
+    mods      TEXT,             -- peptide modifications in the form of mod(AA): pos1,pos2...
+    charge    NUMERIC NOT NULL, -- charge of the peptide fragment
+    mass      NUMERIC NOT NULL, -- predicted monoisotopic mass of the identified peptide sequence (Da)
+    retime    NUMERIC NOT NULL, -- calibrated retention time (min)
+    pep_score NUMERIC NOT NULL, -- Posterior Error Probability (PEP) score of the peptide identification
+    res_fwhm  NUMERIC,          -- resolution of the precursor ion measured in Full Width at Half Maximum (FWHM).
+    is_decoy  NUMERIC NOT NULL, -- peptide is (not) a false positive hit (decoy)
+    is_cont   NUMERIC NOT NULL, -- peptide is (not) a contaminant
     PRIMARY KEY(pep_id),
     FOREIGN KEY(raw_file) REFERENCES EXPERIMENT(raw_file)
 );
 
 
 --
--- Table structure for table PROTEIN.
+-- Table PROTEIN.
 --
 
 DROP TABLE IF EXISTS PROTEIN;
 CREATE TABLE PROTEIN
 -- stores data from the uploaded UniProtKB FASTA file
 (
-    acc		TEXT     NOT NULL, -- protein accession
-    id		TEXT     NOT NULL, -- protein identifiers
-    evidence	INTEGER,           -- evidence number or protein existence
-    gene	TEXT,              -- official gene symbol of the protein-coding gene
-    db		TEXT     NOT NULL, -- source database: 'sp' = UniProtKB/Swiss-Prot or 'tr' = UniProt/TrEMBL
-    des		TEXT     NOT NULL, -- official protein name (description)
-    org		TEXT     NOT NULL, -- source organism (species name)
-    seq		TEXT     NOT NULL, -- protein sequence
+    acc       TEXT NOT NULL,  -- protein accession
+    id        TEXT NOT NULL,  -- protein identifiers
+    evidence  NUMERIC,        -- evidence number or protein existence
+    gene      TEXT,           -- official gene symbol of the protein-coding gene
+    db        TEXT NOT NULL,  -- source database: 'sp' = UniProtKB/Swiss-Prot or 'tr' = UniProt/TrEMBL
+    des       TEXT NOT NULL,  -- official protein name (description)
+    org       TEXT NOT NULL,  -- source organism (species name)
+    seq       TEXT NOT NULL,  -- protein sequence
     PRIMARY KEY(acc)
 );
 
 
 --
--- Table structure for table PGROUP.
+-- Table PGROUP.
 --
 
 DROP TABLE IF EXISTS PGROUP;
 CREATE TABLE PGROUP
 -- stores partial data from the uploaded 'proteinGroups.txt' file
 (
-    grp_id	INTEGER NOT NULL, -- internal (protein) group ID
-    pep_score	REAL    NOT NULL, -- PEP score of the group identification
-    id_by_site	INTEGER NOT NULL, -- group identified only by modification site
-    is_decoy	INTEGER NOT NULL, -- group is (not) a false positive hit (decoy)
-    is_cont	INTEGER NOT NULL, -- group is (not) a contaminant
+    grp_id      NUMERIC NOT NULL, -- internal (protein) group ID
+    pep_score   NUMERIC NOT NULL, -- PEP score of the group identification
+    id_by_site  NUMERIC NOT NULL, -- group identified only by modification site
+    is_decoy    NUMERIC NOT NULL, -- group is (not) a false positive hit (decoy)
+    is_cont     NUMERIC NOT NULL, -- group is (not) a contaminant
     PRIMARY KEY(grp_id)
 );
 
 
 --
--- Table structure for table PEP2PROT.
+-- Table PEP2PROT.
 --
 
 DROP TABLE IF EXISTS PEP2PROT;
@@ -74,16 +74,16 @@ CREATE TABLE PEP2PROT
 -- stores peptide-is_part_of-protein relations based on the 'evidence.txt' file
 -- excludes protein accessions with CON__ and REV__ prefix (contaminants and decoys)
 (
-    pep_id	INTEGER NOT NULL, -- peptide ID
-    prot_acc	TEXT    NOT NULL, -- protein accession
-    lead_prot	INTEGER NOT NULL, -- 0 = not a leading protein, 1 = leading protein, 2 = leading razor (best scoring) protein
-    FOREIGN KEY(pep_id)   REFERENCES PEPTIDE(pep_id),
+    pep_id    NUMERIC NOT NULL, -- peptide ID
+    prot_acc  TEXT NOT NULL,    -- protein accession
+    lead_prot NUMERIC NOT NULL, -- 0 = not a leading protein, 1 = leading protein, 2 = leading razor (best scoring) protein
+    FOREIGN KEY(pep_id) REFERENCES PEPTIDE(pep_id),
     FOREIGN KEY(prot_acc) REFERENCES PROTEIN(acc)
 );
 
 
 --
--- Table structure for table PROT2GRP.
+-- Table PROT2GRP.
 --
 
 DROP TABLE IF EXISTS PROT2GRP;
@@ -91,65 +91,65 @@ CREATE TABLE PROT2GRP
 -- stores protein-is_part_of-group relations based on the 'proteinGroups.txt' file
 -- excludes protein accessions with CON__ and REV__ prefix (contaminants and decoys)
 (
-    grp_id	INTEGER NOT NULL, -- protein group ID
-    prot_acc	TEXT    NOT NULL, -- protein accession
-    FOREIGN KEY(grp_id)   REFERENCES PGROUP(grp_id),
+    grp_id    NUMERIC NOT NULL, -- protein group ID
+    prot_acc  TEXT NOT NULL,    -- protein accession
+    FOREIGN KEY(grp_id) REFERENCES PGROUP(grp_id),
     FOREIGN KEY(prot_acc) REFERENCES PROTEIN(acc)
 );
 
 
 --
--- Table structure for table EXPERIMENT.
+-- Table EXPERIMENT.
 --
 
 DROP TABLE IF EXISTS EXPERIMENT;
 CREATE TABLE EXPERIMENT
 -- stores the correspondance between experiment names and RAW files
 (
-    raw_file	TEXT NOT NULL, -- prefix of the *.RAW file
-    exp_name    TEXT NOT NULL, -- experiment name
+    raw_file  TEXT NOT NULL, -- prefix of the *.RAW file
+    exp_name  TEXT NOT NULL, -- experiment name
     PRIMARY KEY(raw_file)
 );
 
 --
--- Table structure for (staging) table PEPTIDE_QUANT.
+-- Table PEPTIDE_QUANT.
 --
 
 DROP TABLE IF EXISTS PEPTIDE_QUANT;
 CREATE TABLE PEPTIDE_QUANT
 -- stores peptide-level quantitative data from the 'evidence.txt' file
 (
-    pep_id	INTEGER NOT NULL, -- peptide ID
-    exp_name	TEXT    NOT NULL, -- experiment name
-    quant_type	TEXT    NOT NULL, -- type of quantitative measurement e.g., RATIO H/L, RATIO H/L NORMALIZED, INTENSITY H, INTENSITY L  
-    quant_value TEXT,           -- value of the quantity (to handle '\N' or NULL the field must be of TEXT type)
+    pep_id      NUMERIC NOT NULL,   -- peptide ID
+    exp_name    TEXT NOT NULL,      -- experiment name
+    quant_type  TEXT NOT NULL,      -- type of quantitative measurement e.g., RATIO H/L, RATIO H/L NORMALIZED, INTENSITY H, INTENSITY L
+    quant_value TEXT,               -- value of the quantity (to handle '\N' or NULL the field must be of TEXT type)
     FOREIGN KEY(pep_id) REFERENCES PEPTIDE(pep_id)
 );
 
 
 --
--- Table structure for (staging) table PGROUP_QUANT.
+-- Table PGROUP_QUANT.
 --
 
 DROP TABLE IF EXISTS PGROUP_QUANT;
 CREATE TABLE PGROUP_QUANT
 -- stores protein (group)-level quantitative data from the 'proteinGroups.txt' file
 (
-    grp_id      INTEGER NOT NULL, -- group ID
-    exp_name    TEXT    NOT NULL, -- experiment name
-    quant_type  TEXT    NOT NULL, -- type of quantitative measurement: RATIO H/L, RATIO H/L NORMALIZED, RATIO H/L NORMALIZED SIGNIFICANCE B, RATIO H/L VARIABILITY, RATIO H/L COUNT, INTENSITY H, INTENSITY L
+    grp_id      NUMERIC NOT NULL, -- group ID
+    exp_name    TEXT NOT NULL,    -- experiment name
+    quant_type  TEXT NOT NULL,    -- type of quantitative measurement: RATIO H/L, RATIO H/L NORMALIZED, RATIO H/L NORMALIZED SIGNIFICANCE B, RATIO H/L VARIABILITY, RATIO H/L COUNT, INTENSITY H, INTENSITY L
     quant_value TEXT,             -- value of the quantity (to handle '\N' or NULL the field must be TEXT)
     FOREIGN KEY(grp_id) REFERENCES PGROUP(grp_id)
 );
 
 
 --
--- View on PEPTIDE table.
+-- View V_PEPTIDE.
 --
 
 DROP VIEW IF EXISTS V_PEPTIDE;
 CREATE VIEW V_PEPTIDE AS
--- view on PEPTIDE table excluding peptide decoys and contaminants as identified by MaxQuant
+-- exclude peptide decoys and contaminants as identified by MaxQuant
 SELECT
     pep_id,
     raw_file,
@@ -168,12 +168,12 @@ WHERE
 
 
 --
--- View on PROTEIN table.
+-- View V_PROTEIN.
 --
 
 DROP VIEW IF EXISTS V_PROTEIN;
 CREATE VIEW V_PROTEIN AS
--- view on PROTEIN table with extra columns
+-- PROTEIN table with extra columns
 SELECT
     acc,
     id,
@@ -201,12 +201,12 @@ FROM
 
 
 --
--- View on PGROUP table.
+-- View V_PGROUP.
 --
 
 DROP VIEW IF EXISTS V_PGROUP;
 CREATE VIEW V_PGROUP AS
--- view on PGROUP table excluding protein (group) decoys and contaminants as identified by MaxQuant
+-- exclude protein (group) decoys and contaminants as identified by MaxQuant
 SELECT
     grp_id,
     pep_score,
@@ -218,12 +218,12 @@ WHERE
 
 
 --
--- View on PEPTIDE_QUANT table.
+-- View V_PEPTIDE_QUANT.
 --
 
 DROP VIEW IF EXISTS V_PEPTIDE_QUANT;
 CREATE VIEW V_PEPTIDE_QUANT AS
--- view on PEPTIDE_QUANT table: row-to-column transfored peptide quantitative data
+-- row-to-column transfored peptide quantitative data
 SELECT
     pep_id,
     exp_name,
@@ -243,12 +243,12 @@ GROUP BY
 
 
 --
--- View on V_PEPTIDE_QUANT view.
+-- View VV_PEPTIDE_QUANT.
 --
 
 DROP VIEW IF EXISTS VV_PEPTIDE_QUANT;
 CREATE VIEW VV_PEPTIDE_QUANT AS
--- view on V_PEPTIDE_QUANT view with extra columns i.e., reciprocal ratios and fold-changes
+-- V_PEPTIDE_QUANT with extra columns incl. reciprocal ratios and fold-changes
 SELECT
     pep_id,
     exp_name,
@@ -278,12 +278,12 @@ FROM
 
 
 --
--- View on PGROUP_QUANT table.
+-- View V_PGROUP_QUANT.
 --
 
 DROP VIEW IF EXISTS V_PGROUP_QUANT;
 CREATE VIEW V_PGROUP_QUANT AS
--- view on PGROUP_QUANT table: row-to-column transformed protein (group) quantitative data
+-- row-to-column transformed protein (group) quantitative data
 -- Note: MaxQuant reports coefficient of variation (%CV) for each protein group
 -- calculated as 100 * standard deviation (SD) of log-transformed peptide ratios
 SELECT
@@ -314,12 +314,12 @@ GROUP BY
 
 
 --
--- View on V_PGROUP_QUANT view.
+-- View VV_PGROUP_QUANT.
 --
 
 DROP VIEW IF EXISTS VV_PGROUP_QUANT;
 CREATE VIEW VV_PGROUP_QUANT AS
--- view on V_PGROUP_QUANT view with extra columns:
+-- V_PGROUP_QUANT with extra columns:
 -- number of peptide quantitations, PEP score, reciprocal ratios, fold-changes, standard deviations and significance B
 -- excludes protein groups identified as contaminants and/or decoys
 --
@@ -373,12 +373,12 @@ WHERE
 
 
 --
--- View to summarize peptides.
+-- View V_PEPTIDE_STAT.
 --
 
 DROP VIEW IF EXISTS V_PEPTIDE_STAT;
 CREATE VIEW V_PEPTIDE_STAT AS
--- view to show a summary of peptide identifications & quantitations per experiment
+-- show a summary of peptide identifications & quantitations per experiment
 SELECT
     exp_name,
     COUNT(CASE WHEN is_decoy = 0 AND is_cont = 0 THEN A.pep_id ELSE NULL END) AS n_pep_ids,
@@ -410,13 +410,13 @@ GROUP BY
 
 
 --
--- View to summarize proteins
+-- View V_PROTEIN_STAT.
 --
 
 DROP VIEW IF EXISTS V_PROTEIN_STAT;
 CREATE VIEW V_PROTEIN_STAT AS
--- view to show a summary of database-dependent protein identifications including evidence (protein existence)
--- excludes protein accessions which belong to protein groups identified as contaminants/decoys
+-- show a summary of database-dependent protein identifications including evidence (protein existence)
+-- exclude protein accessions which belong to protein groups identified as contaminants/decoys
 SELECT
     db,
     COUNT(*) AS n_prot_acc,
@@ -434,12 +434,12 @@ GROUP BY
 
 
 --
--- View to summarize protein groups.
+-- View V_PGROUP_STAT.
 --
 
 DROP VIEW IF EXISTS V_PGROUP_STAT;
 CREATE VIEW V_PGROUP_STAT AS
--- view to show a summary of non-redundant protein identifications & quantitations
+-- show a summary of non-redundant protein identifications & quantitations
 SELECT
     exp_name,
     COUNT(CASE WHEN is_decoy = 0 AND is_cont = 0 THEN A.grp_id ELSE NULL END) AS n_pgrp_ids,
@@ -456,13 +456,13 @@ GROUP BY
 
 
 --
--- View to summarize regulated proteins
+-- View V_REG_PGROUP_STAT.
 --
 
 DROP VIEW IF EXISTS V_REG_PGROUP_STAT;
 CREATE VIEW V_REG_PGROUP_STAT AS
--- view to show a summary of potentially regulated (non-redundant) proteins given cutoffs:
---    FC >= 1.5 and P-value < .05; the latter cutoff used only if P-values are provided
+-- show a summary of potentially regulated (non-redundant) proteins given cutoffs:
+-- FC >= 1.5 and P-value < .05; the latter cutoff used only if P-values are provided
 SELECT
     exp_name,
     COUNT(CASE WHEN ((fc_HL >= 1.5 AND IFNULL(sig_ratio_HL, 0) < 0.05) OR (fc_HM >= 1.5 AND IFNULL(sig_ratio_HM, 0) < 0.05) OR (fc_ML >= 2 AND IFNULL(sig_ratio_ML, 0) < 0.05)) THEN grp_id ELSE NULL END) AS n_pgrp_ids,
@@ -482,12 +482,12 @@ GROUP BY
 
 
 --
--- View used in the Search Grid
+-- View V_PGROUP_MEMBER.
 --
 
 DROP VIEW IF EXISTS V_PGROUP_MEMBERS;
 CREATE VIEW V_PGROUP_MEMBERS AS
--- view to show the entries in the searchable grid
+-- show the entries in the searchable grid
 SELECT
     E.grp_id,
     E.grp_size,
@@ -550,7 +550,7 @@ WHERE
 
 
 ---
---- View used for peptide coverage map
+--- View V_PEP2GRP.
 ---
 
 DROP VIEW IF EXISTS V_PEP2GRP;
@@ -578,7 +578,7 @@ WHERE
 
 
 -- 
--- View to show 'unmapped' protein accessions
+-- View V_UNMAPPED_PROT2GRP.
 --
 
 DROP VIEW IF EXISTS V_UNMAPPED_PROT2GRP;
@@ -593,8 +593,9 @@ ON
 WHERE
     acc IS NULL;
 
+
 -- 
--- View to show 'unmapped' protein accessions
+-- View V_UNMAPPED_PEP2PROT.
 --
 
 DROP VIEW IF EXISTS V_UNMAPPED_PEP2PROT;
@@ -609,11 +610,13 @@ ON
 WHERE
     acc IS NULL;
 
+
 ---
---- View to show some stats on (un)mapped protein accessions
+--- View V_UNMAPPED_PROTEIN_STAT.
 ---
+
 DROP VIEW IF EXISTS V_UNMAPPED_PROTEIN_STAT;
--- view the numbers of (un)mapped protein accessions to enable the identification of data integrity problems
+-- view the numbers of (un)mapped protein accessions to identify data integrity problems
 CREATE VIEW V_UNMAPPED_PROTEIN_STAT AS
 SELECT
     n_prot_acc,                 -- number of protein accessions in the FASTA sequence library (or PROTEIN table)
