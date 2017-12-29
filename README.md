@@ -1,28 +1,15 @@
-[PIQMIe](http://piqmie.biotools.nl)
-=======
+# [PIQMIe](http://piqmie.biotools.nl)
+
 [![DOI](https://zenodo.org/badge/42406525.svg)](https://zenodo.org/badge/latestdoi/42406525)
 
-Description
------------
-*PIQMIe* is a web-based tool for reliable analysis and visualization of semi-quantitative
-mass spectrometry (MS)-based proteomics data ([Kuzniar and Kanaar, 2014](http://www.ncbi.nlm.nih.gov/pubmed/24861615)). *PIQMIe* readily integrates peptide and (non-redundant) protein identifications
-and quantitations, as obtained by the [MaxQuant/Andromeda](http://maxquant.org)
-software ([Cox *et al.*, 2008](http://www.ncbi.nlm.nih.gov/pubmed/19029910), [2011](http://www.ncbi.nlm.nih.gov/pubmed/21254760)), with additional biological
-information from the [UniProtKB](http://www.uniprot.org/) database, and makes
-the linked data available in the form of a light-weight relational database
-([SQLite](http://sqlite.org/)). Using the web interface, users are presented with
-a concise summary of their proteomics experiments in numerical and graphical
-forms, as well as with a searchable protein grid and interactive visualization
-tools to aid in the rapid assessment of the experiments and in the identification
-of proteins of interest. *PIQMIe* provides data access via a web interface and
-programmatic RESTful API.
+## Description
 
-A running instance of this proteomics service can be found at http://piqmie.biotools.nl.
+_PIQMIe_ is a web-based tool for reliable analysis and visualization of semi-quantitative mass spectrometry (MS)-based proteomics data ([Kuzniar and Kanaar, 2014](https://doi.org/10.1093/nar/gku478)). _PIQMIe_ readily integrates peptide and (non-redundant) protein identifications and quantitations, as obtained by the [MaxQuant/Andromeda](http://maxquant.org/) software ([Cox _et al._, 2008](https://doi.org/10.1038/nbt.1511), [2011](https://doi.org/10.1021/pr101065j)), with additional biological information from the [UniProtKB](http://www.uniprot.org/) database, and makes the linked data available in the form of a light-weight relational database ([SQLite](http://sqlite.org/)). Using the web interface, users are presented with a concise summary of their proteomics experiments in numerical and graphical forms, as well as with a searchable protein grid and interactive visualization tools to aid in the rapid assessment of the experiments and in the identification of proteins of interest. _PIQMIe_ provides data access via a web interface and programmatic RESTful API.
 
+## Requirements
 
-Requirements
-------------
-Python modules:	
+Python modules:
+
 - cherrypy (>=3.2.2)
 - genshi (>=0.7)
 - sqlite3 (>=2.6.0)
@@ -30,13 +17,12 @@ Python modules:
 - magic (>=0.4.3)
 
 Javascript libraries:
+
 - jQuery (>=1.11.0)
 - jqGrid (>=4.6.0)
 - D3.js (>=3.3.6)
 
-
-Installation
-------------
+## Installation
 
 ```
 git clone https://github.com/arnikz/PIQMIe.git
@@ -46,8 +32,7 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Extract sample data files on human bone development and mineralization
-([Alves *et al.*, 2013](http://www.ncbi.nlm.nih.gov/pubmed/23781072)).
+Extract sample data files on human bone development and mineralization ([Alves _et al._, 2013](https://doi.org/10.1074/mcp.M112.024927)).
 
 ```
 cd PIQMIe/data
@@ -59,7 +44,6 @@ MaxQuant peptide list: `evidence.txt`
 MaxQuant protein list: `proteinGroups.txt`
 
 Protein sequences from UniProtKB: `HUMAN.fasta`
-
 
 Edit `conf/config.ini` file depending on dev or prod mode.
 
@@ -83,15 +67,14 @@ cd <APP_BASE_DIR>
 cherryd -i PIQMIe -c PIQMIe/conf/config.ini # sudo in prod
 ```
 
-Visit PIQMIe front page at `http://localhost:8080/` (in dev).
+## Usage
 
-Upload MaxQuant result files including FASTA sequence library to the web server
-and press the *Submit* button to process the files. After processing the input
-files, a new sub-directory *jobID* is created in the *DATA_DIR*.
+Visit PIQMIe production instance at <http://piqmie.biotools.nl> (or <http://localhost:8080/> for local development).
+
+Upload MaxQuant peptide/protein lists (`.txt`) including the corresponding sequence library in FASTA (`.fa|fasta`) to the web server, and press the _Submit_ button to process the input files. After processing, a new sub-directory `<DATA_DIR>/<jobID>` is created with input/output files:
 
 ```
-cd <DATA_DIR>/<jobID>
-ls
+ls <DATA_DIR>/<jobID>
 EXPERIMENT.dat
 HUMAN.fasta
 PEP2PROT.dat
@@ -105,3 +88,9 @@ evidence.txt
 proteinGroups.txt
 sampledata.sqlite
 ```
+
+## How to cite
+
+Kuzniar, A. and Kanaar, R. (2014) PIQMIe: a web server for semi-quantitative proteomics data management and analysis, _Nucleic Acids Research_, 42, W100–W106\. doi:[10.1093/nar/gku478](https://doi.org/10.1093/nar/gku478)
+
+Kuzniar, A. PIQMIe version 1.0\. doi:[10.5281/zenodo.34090](https://doi.org/10.5281/zenodo.34090)
