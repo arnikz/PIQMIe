@@ -32,20 +32,14 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Extract sample data files on human bone development and mineralization ([Alves _et al._, 2013](https://doi.org/10.1074/mcp.M112.024927)).
+Extract sample data on human bone development and mineralization ([Alves _et al._, 2013](https://doi.org/10.1074/mcp.M112.024927)).
 
 ```
-cd PIQMIe/data
+cd data
 tar xvf sampledata.tar.bz2
 ```
 
-MaxQuant peptide list: `evidence.txt`
-
-MaxQuant protein list: `proteinGroups.txt`
-
-Protein sequences from UniProtKB: `HUMAN.fasta`
-
-Edit `conf/config.ini` file depending on dev or prod mode.
+Edit `config.ini` file depending on dev or prod mode.
 
 ```
 #environment = "production"
@@ -54,7 +48,7 @@ server.socket_port = 8080 # in prod: 80
 ...
 tools.staticdir.root = "<APP_BASE_DIR>"
 tools.staticdir.dir = "PIQMIe"
-tools.sessions.storage_path = "<DATA_DIR>"
+tools.sessions.storage_path = "<DATA_DIR>" # default: PIQMIe/data
 ...
 log.error_file = "error.log"    # in prod: /var/log/piqmie/error.log
 log.access_file = "access.log"  # in prod: /var/log/piqmie/access.log
@@ -64,30 +58,16 @@ Start up the web server.
 
 ```
 cd <APP_BASE_DIR>
-cherryd -i PIQMIe -c PIQMIe/conf/config.ini # sudo in prod
+cherryd -i PIQMIe -c PIQMIe/config.ini # in prod: sudo ...
 ```
 
 ## Usage
 
 Visit PIQMIe production instance at <http://piqmie.biotools.nl> (or <http://localhost:8080/> for local development).
+To view the sample data, follow _Sample Data_ tab and click on [results](http://localhost:8080/results/a000000000000000000000000000000000000001).
 
-Upload MaxQuant peptide/protein lists (`.txt`) including the corresponding sequence library in FASTA (`.fa|fasta`) to the web server, and press the _Submit_ button to process the input files. After processing, a new sub-directory `<DATA_DIR>/<jobID>` is created with input/output files:
+Alternatively, upload your MaxQuant peptide (`evidence.txt`) and protein (`proteinGroups.txt`) lists including the corresponding sequence library in FASTA (`.fa|fasta`) to the web server, and press the _Submit_ button to process the input files. After processing, click on the generated link to view the results. Note: For each session, a new (sub)directory `<DATA_DIR>/<jobID>` with I/O files will be created.
 
-```
-ls <DATA_DIR>/<jobID>
-EXPERIMENT.dat
-HUMAN.fasta
-PEP2PROT.dat
-PEPTIDE.dat
-PEPTIDE_QUANT.dat
-PGROUP.dat
-PGROUP_QUANT.dat
-PROT2GRP.dat
-PROTEIN.dat
-evidence.txt
-proteinGroups.txt
-sampledata.sqlite
-```
 
 ## How to cite
 
