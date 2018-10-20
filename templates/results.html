@@ -108,10 +108,10 @@
     <div class="container">
       <ul class="nav nav-pills" id="myTab">
         <li><a href="" onclick="window.open('../../');" data-toggle="tab">PIQMIe</a></li>
-        <li class="active"><a href="#download" data-toggle="tab">Download</a></li>
+        <li><a href="#download" data-toggle="tab">Download</a></li>
         <li><a href="#statpep" value="statpep" data-toggle="tab">Peptides</a></li>
         <li><a href="#statprot" value="statprot" data-toggle="tab">Proteins</a></li>
-        <li><a href="#statgrp" value="statgrp" data-toggle="tab">Protein Groups</a></li>
+        <li class="active"><a href="#statgrp" value="statgrp" data-toggle="tab">Protein Groups</a></li>
         <li><a href="#statregrp" value="statregrp" data-toggle="tab">Regulated Proteins</a></li>
         <li><a href="#grp" value="grp" data-toggle="tab">Search Grid</a></li>
         <li><a href="#cmpquant" data-toggle="tab">Scatterplot</a></li>
@@ -128,7 +128,7 @@
 
       <div class="tab-content">
         <div class="tab-pane fade" id="piqmie" />
-        <div class="tab-pane fade in active" id="download">
+        <div class="tab-pane fade" id="download">
           <legend>Download area for jobID: $session_id</legend>
           <div class="well">
             <p>Click <a href="../download/$session_id/${db_file}">here</a> to save your data in the form of a <a href="http://www.sqlite.org">SQLite</a> database (version 3.x).</p>
@@ -176,7 +176,7 @@
           </div>
         </div><!-- proteins -->
 
-        <div class="tab-pane fade" id="statgrp">
+        <div class="tab-pane fade in active" id="statgrp">
           <legend>Summary of non-redundant protein identifications &amp; quantitations</legend>
           <div style="overflow: scroll;" class="well">
             <div class="help-block">Note: Mouse over the abbreviations in the column headers or figure legends to show their full descriptions.</div>
