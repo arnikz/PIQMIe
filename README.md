@@ -1,4 +1,4 @@
-# [PIQMIe](http://piqmie.biotools.nl)
+# PIQMIe
 
 [![DOI](https://zenodo.org/badge/42406525.svg)](https://zenodo.org/badge/latestdoi/42406525)
 
@@ -63,10 +63,9 @@ cherryd -i PIQMIe -c PIQMIe/config.ini # in prod: sudo ...
 
 ## Usage
 
-Visit PIQMIe production instance at <http://piqmie.biotools.nl> (or <http://localhost:8080/> for local development).
-To view the sample data, follow _Sample Data_ tab and click on [results](http://localhost:8080/results/a000000000000000000000000000000000000001).
+To view the sample data on your local PIQMIe instance, follow _Sample Data_ tab and click on [results](http://localhost:8080/results/a000000000000000000000000000000000000001).
 
-Alternatively, upload your MaxQuant peptide (`evidence.txt`) and protein (`proteinGroups.txt`) lists including the corresponding sequence library in FASTA (`.fa|fasta`) to the web server, and press the _Submit_ button to process the input files. After processing, click on the generated link to view the results. Note: For each session, a new (sub)directory `<DATA_DIR>/<jobID>` with I/O files will be created.
+Alternatively, upload your own data files, i.e., MaxQuant peptide (`evidence.txt`) and protein (`proteinGroups.txt`) lists including the sequence library in FASTA (`.fa|fasta`), to the web server and click on the _Submit_ button to process the input files. After processing, click on the generated link to view the results. Note: For each session, a new (sub)directory `<DATA_DIR>/<jobID>` including I/O files will be created.
 
 
 ## How to cite
