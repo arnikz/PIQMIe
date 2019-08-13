@@ -6,19 +6,28 @@ addons:
   apt:
     packages:
       - sqlite3
+      - curl
 env:
   global:
     - BASE_DIR=$(dirname $TRAVIS_BUILD_DIR)
     - APP=PIQMIe
     - CFG_FILE=config.ini
+    - URL=http://127.0.0.1:8080/results/a000000000000000000000000000000000000001
 before_install:
   - echo $BASE_DIR
   - sed -i.org "s:/home/user:$BASE_DIR:" $CFG_FILE
   - cat $CFG_FILE
-  - cd data && tar xvf *.tar.bz2
+  - cd data
+  - tar xvf *.tar.bz2
   - cd ../
 install:
   - pip install -r requirements.txt
 script:
-  - cd ../ && cherryd -i $APP -c $APP/config.ini
-  
+  - cd ../ && cherryd -i $APP -c $APP/config.ini &
+  - sleep 10
+  - HTTP_CODE=$(curl -I  $URL | grep HTTP  | cut -f 2 -d " ")
+  - echo $HTTP_CODE
+  - |
+    if [ "$HTTP_CODE" != "200" ]; then
+      exit 1
+    fi
