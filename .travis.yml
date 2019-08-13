@@ -7,12 +7,14 @@ addons:
     packages:
       - sqlite3
       - curl
+      - jq
 env:
   global:
     - BASE_DIR=$(dirname $TRAVIS_BUILD_DIR)
     - APP=PIQMIe
     - CFG_FILE=config.ini
-    - URL=http://127.0.0.1:8080/results/a000000000000000000000000000000000000001
+    - BASE_URL=http://127.0.0.1:8080
+    - DATA=a000000000000000000000000000000000000001
 before_install:
   - echo $BASE_DIR
   - sed -i.org "s:/home/user:$BASE_DIR:" $CFG_FILE
@@ -25,9 +27,15 @@ install:
 script:
   - cd ../ && cherryd -i $APP -c $APP/config.ini &
   - sleep 10
-  - HTTP_CODE=$(curl -I  $URL | grep HTTP  | cut -f 2 -d " ")
+  - HTTP_CODE=$(curl -I  "$BASE_URL/results/$DATA" | grep HTTP  | cut -f 2 -d " ")
   - echo $HTTP_CODE
   - |
     if [ "$HTTP_CODE" != "200" ]; then
       exit 1
     fi
+  - |
+    for p in $(echo statpep statprot statgrp statregrp); do
+      API=$(echo "$BASE_URL/rest/$DATA/$p")
+      curl "$API" | jq
+    done
+  
