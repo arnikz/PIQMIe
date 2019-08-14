@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 #
 # This script parses the MaxQuant 'proteinGroups.txt' file or its post-processed version.
 # Both duplex and triplex SILAC experiments are supported.

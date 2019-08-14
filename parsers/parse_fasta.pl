@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 #
 # This script reads a sequence library file with UniProtKB-formatted FASTA headers
 # (see http://www.uniprot.org/help/fasta-headers) and writes a tab-delimited file.

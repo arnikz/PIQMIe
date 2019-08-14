@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 #
 # This script parses the MaxQuant 'evidence.txt' result file.
 # Both duplex and triplex SILAC experiments are supported.
