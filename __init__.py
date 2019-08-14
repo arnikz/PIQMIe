@@ -75,7 +75,8 @@ class Piqmie(object):
             for fname in os.listdir(session_dir):
                 if fname.endswith(DBFILE_SFX):
                     return os.path.join(session_dir, fname)
-        except:
+        except Exception as e:
+            cp.log(e)
             raise cp.HTTPError(400, "Requested JobID: {0} was not found.".format(session_id))
 
     def _fetchRatioTypes(self, exp_states):
@@ -334,13 +335,10 @@ class Piqmie(object):
 
             # import data into db tables
             sep = '\\t'  # record separator
-            meta_stmt = """
-                PRAGMA synchronous = OFF;
-                PRAGMA journal_mode = OFF;
-                PRAGMA cache_size = 10000;
-                .separator {0}
-            """.format(sep)
-
+            meta_stmt = "PRAGMA synchronous = OFF;\n"
+            meta_stmt += "PRAGMA journal_mode = OFF;\n"
+            meta_stmt += "PRAGMA cache_size = 10000;\n"
+            meta_stmt += ".separator {0}\n".format(sep)
             sql_import_file = os.path.join(session_dir, 'import_data.sql')
             for t in tables:
                 tname = t[0]
@@ -365,46 +363,47 @@ class Piqmie(object):
             #   on mandatory columns (see parse_*.pl scripts for details)
             sql_update_tables = """
                 BEGIN;
-                    UPDATE PEPTIDE SET raw_file = NULLIF(raw_file, '\N'),
-                        seq = NULLIF(seq, '\N'),
-                        mods = NULLIF(mods, '\N'),
-                        charge = NULLIF(charge, '\N'),
-                        mass = NULLIF(mass, '\N'),
-                        retime = NULLIF(retime, '\N'),
-                        pep_score = NULLIF(pep_score, '\N'),
-                        res_fwhm = NULLIF(res_fwhm, '\N'),
-                        is_decoy = NULLIF(is_decoy, '\N'),
-                        is_cont = NULLIF(is_cont, '\N');
+                    UPDATE PEPTIDE SET raw_file = NULLIF(raw_file, '{cur}'),
+                        seq = NULLIF(seq, '{cur}'),
+                        mods = NULLIF(mods, '{cur}'),
+                        charge = NULLIF(charge, '{cur}'),
+                        mass = NULLIF(mass, '{cur}'),
+                        retime = NULLIF(retime, '{cur}'),
+                        pep_score = NULLIF(pep_score, '{cur}'),
+                        res_fwhm = NULLIF(res_fwhm, '{cur}'),
+                        is_decoy = NULLIF(is_decoy, '{cur}'),
+                        is_cont = NULLIF(is_cont, '{cur}');
 
-                    UPDATE PEPTIDE_QUANT SET exp_name = REPLACE(exp_name, '\N', '{exp_name}'),
-                        quant_type = NULLIF(quant_type, '\N'),
-                        quant_value = NULLIF(quant_value, '\N');
+                    UPDATE PEPTIDE_QUANT SET exp_name = REPLACE(exp_name, '{cur}', '{new}'),
+                        quant_type = NULLIF(quant_type, '{cur}'),
+                        quant_value = NULLIF(quant_value, '{cur}');
 
-                    UPDATE PROTEIN SET id = NULLIF(id, '\N'),
-                        evidence = NULLIF(evidence, '\N'),
-                        gene = NULLIF(gene, '\N'),
-                        db = NULLIF(db, '\N'),
-                        des = NULLIF(des, '\N'),
-                        org = NULLIF(org, '\N'),
-                        seq = NULLIF(seq, '\N');
+                    UPDATE PROTEIN SET id = NULLIF(id, '{cur}'),
+                        evidence = NULLIF(evidence, '{cur}'),
+                        gene = NULLIF(gene, '{cur}'),
+                        db = NULLIF(db, '{cur}'),
+                        des = NULLIF(des, '{cur}'),
+                        org = NULLIF(org, '{cur}'),
+                        seq = NULLIF(seq, '{cur}');
 
-                    UPDATE PGROUP SET pep_score = NULLIF(pep_score, '\N'),
-                        id_by_site = NULLIF(id_by_site, '\N'),
-                        is_decoy = NULLIF(is_decoy, '\N'),
-                        is_cont = NULLIF(is_cont, '\N');
+                    UPDATE PGROUP SET pep_score = NULLIF(pep_score, '{cur}'),
+                        id_by_site = NULLIF(id_by_site, '{cur}'),
+                        is_decoy = NULLIF(is_decoy, '{cur}'),
+                        is_cont = NULLIF(is_cont, '{cur}');
 
-                    UPDATE PGROUP_QUANT SET exp_name = REPLACE(exp_name, '\N', '{exp_name}'),
-                        quant_value = NULLIF(quant_value, '\N'),
-                        quant_value = NULLIF(quant_value, '\N');
+                    UPDATE PGROUP_QUANT SET exp_name = REPLACE(exp_name, '{cur}', '{new}'),
+                        quant_value = NULLIF(quant_value, '{cur}'),
+                        quant_value = NULLIF(quant_value, '{cur}');
 
-                    UPDATE EXPERIMENT SET exp_name = REPLACE(exp_name, '\N', '{exp_name}');
+                    UPDATE EXPERIMENT SET exp_name = REPLACE(exp_name, '{cur}', '{new}');
                 END;
-            """.format(exp_name=dts_name)
+            """.format(cur='\N', new=dts_name)
 
             try:
                 cur.executescript(sql_update_tables)
-            except sqlite3.IntegrityError, e:
-                raise cp.HTTPError(400, "Data integrity error: values missing in table.column(s): {0}".format(e))
+            except sqlite3.IntegrityError as e:
+                cp.log(e)
+                raise cp.HTTPError(400, "Data integrity error: values missing in table.column(s).")
 
             # check the integrity of peptide/protein mappings
             cur.execute(sql_check_integrity_mappings)
@@ -800,6 +799,7 @@ class Piqmie(object):
             rows = cur.fetchall()
             cur.close()
             return [collections.OrderedDict(xi) for xi in rows]
+
 
 if __name__ == '__main__':
     cp.quickstart(Piqmie())
