@@ -109,10 +109,9 @@ class Piqmie(object):
     @cp.expose
     def results(self, session_id):
         """
-        Show post-processed MaxQuant data in an HTML page
+        Show post-processed MaxQuant data in an HTML page.
         """
         db_file = self._getDbfile(session_id)
-        print "* DEBUG:", db_file
         with sqlite3.connect(db_file) as conn:
             cur = conn.cursor()
             # cur.execute(Piqmie.sql_fetch_expnames)
@@ -137,7 +136,8 @@ class Piqmie(object):
     @cp.tools.check_content_length()
     def upload(self, **kw):
         """
-        Upload MaxQuant result files to the server, Edit-Transform-Load (ETL) files onto a database.
+        Upload MaxQuant result files to the server and Edit-Transform-Load (ETL)
+        files onto a database.
         """
         dts_name = None
         dts_name_key = 'dts_name'
@@ -188,7 +188,7 @@ class Piqmie(object):
             fname = fobj.filename
             filepath = os.path.join(session_dir, fname)
             with open(filepath, 'w+') as fh:
-                for line in fobj.file:  # read from input stream
+                for line in fobj.file:  # read data from input stream
                     line = line.rstrip('\r\n') + '\n'  # change to Unix LF
                     data_size += len(line)
                     # set size limit on uploaded data
@@ -218,22 +218,22 @@ class Piqmie(object):
             else:
                 pass
 
-        print "*DEBUG [{0}]: Data set '{1}' upload completed.".format(session_id, dts_name)
+        cp.log("Uploading dataset '{0}' completed for session '{1}'.".format(dts_name, session_id))
 
         # parse FASTA sequence file
         self._parseFastaFile(session_id)
-        print "*DEBUG [{0}]: Parsing FASTA file completed.".format(session_id)
+        cp.log("Parsing FASTA file completed for session '{0}'.".format(session_id))
 
         # parse MaxQuant files
         self._parseProteinList(session_id)
-        print "*DEBUG [{0}]: Parsing protein list completed.".format(session_id)
+        cp.log("Parsing protein list completed for session '{0}.".format(session_id))
 
         self._parsePeptideList(session_id)
-        print "*DEBUG [{0}]: Parsing peptide list completed.".format(session_id)
+        cp.log("Parsing peptide list completed for session '{0}'.".format(session_id))
 
         # create SQLite database
         self._createSQLiteDb(dts_name, session_id)
-        print "*DEBUG [{0}]: Data processing completed.".format(session_id)
+        cp.log("Processing/uploading data into database completed for session '{0}'.".format(session_id))
 
         # expire the current session cookie
         # cp.lib.sessions.expire()
