@@ -1,0 +1,31 @@
+{
+  "name": "PIQMIe",
+  "version": "1.0.0",
+  "description": "[![Build Status](https://travis-ci.com/arnikz/PIQMIe.svg?branch=dev)](https://travis-ci.com/arnikz/PIQMIe) [![DOI](https://zenodo.org/badge/42406525.svg)](https://zenodo.org/badge/latestdoi/42406525)",
+  "main": "index.js",
+  "dependencies": {
+    "bootstrap": "^4.3.1",
+    "d3": "^5.9.7",
+    "jqgrid": "^4.6.4",
+    "jquery": "^3.4.1",
+    "jquery-form": "^4.2.2",
+    "jquery-ui": "^1.12.1",
+    "jquery-validation": "^1.19.1",
+    "popper.js": "^1.15.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arnikz/PIQMIe.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/arnikz/PIQMIe/issues"
+  },
+  "homepage": "https://github.com/arnikz/PIQMIe#readme"
+}

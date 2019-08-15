@@ -1,648 +1,693 @@
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="" />
-    <meta name="author" content="" />
 
-    <title>PIQMIe: Data submission page</title>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="" />
+  <meta name="author" content="" />
+  <title>PIQMIe: Data submission page</title>
+  <!-- local Bootstrap CSS -->
+  <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css" media="screen" />
+  <style type="text/css">
+    .percent {
+      position: absolute;
+      display: inline-block;
+      bottom: 0px;
+      left: 48%;
+    }
+  </style>
+</head>
 
-    <!-- local Bootstrap CSS -->
-    <link rel="stylesheet" href="css/bootstrap.min.css" media="screen" />
-    <style type="text/css">
-
-        .percent {
-            position: absolute;
-            display: inline-block;
-            bottom: 0px;
-            left: 48%;
-        }
-        
-    </style>
-  </head>
-  <body>
-    <!-- Load javascript libs -->
-    <script type="text/javascript" src="js/jquery.min.js" charset="utf-8"></script>
-    <script type="text/javascript" src="js/bootstrap.min.js" charset="utf-8"></script>
-    <script type="text/javascript" src="js/jquery.form.min.js" charset="utf-8"></script>
-    <script type="text/javascript" src="js/jquery.validate.min.js" charset="utf-8"></script>
-    <script type="text/javascript" src="js/jquery.cookie.js" charset="utf-8"></script>
-    <script type="text/javascript" src="js/additional-methods.min.js" charset="utf-8"></script>
-    <script type="text/javascript" charset="utf-8">
+<body>
+  <!-- Load javascript libs -->
+  <script type="text/javascript" src="node_modules/jquery/dist/jquery.min.js" charset="utf-8"></script>
+  <script type="text/javascript" src="node_modules/jquery-form/dist/jquery.form.min.js" charset="utf-8"></script>
+  <script type="text/javascript" src="node_modules/jquery-validation/dist/jquery.validate.min.js" charset="utf-8"></script>
+  <!--<script type="text/javascript" src="js/jquery.cookie.js" charset="utf-8"></script>-->
+  <script type="text/javascript" src="node_modules/jquery-validation/dist/additional-methods.min.js" charset="utf-8"></script>
+  <script type="text/javascript" src="node_modules/bootstrap/dist/js/bootstrap.min.js" charset="utf-8"></script>
+  <script type="text/javascript" charset="utf-8">
     //<![CDATA[
-      // tracking code using Google analytics
-      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-      ga('create', 'UA-52549923-1', 'auto');
-      ga('send', 'pageview');
+    // tracking code using Google analytics
+    (function(i, s, o, g, r, a, m) {
+      i['GoogleAnalyticsObject'] = r;
+      i[r] = i[r] || function() {
+        (i[r].q = i[r].q || []).push(arguments)
+      }, i[r].l = 1 * new Date();
+      a = s.createElement(o), m = s.getElementsByTagName(o)[0];
+      a.async = 1;
+      a.src = g;
+      m.parentNode.insertBefore(a, m)
+    })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+    ga('create', 'UA-52549923-1', 'auto');
+    ga('send', 'pageview');
 
-      // main
-      $(document).ready(function() {
-          // add tab selector
-          /*$('#myTab a').click(function(evt) {
-              //evt.preventDefault();
-              //$(this).tab('show');
-          });*/
- 
-          // add form validator
-          var myForm = $('form');
-          myForm.validate({
-              rules: {
-                  dts_name: {
-                      required: true
-                  },
-                  pep_file: {
-                      required: true,
-                      accept: 'text/plain',
-                      extension: 'txt'
-                  },
-                  prot_file: {
-                      required: true,
-                      accept: 'text/plain',
-                      extension: 'txt'
-                  },
-                  fasta_file: {
-                      required: true,
-                      accept: ',application/x-download',
-                      extension: 'fa|fasta',
-                  }
-              },
-              highlight: function(element) {
-                  $(element).closest('.form-group').addClass('has-error');
-              },
-              unhighlight: function(element) {
-                  $(element).closest('.form-group').removeClass('has-error');
-              },
-              errorElement: 'label',
-              errorClass: 'help-block',
-              errorPlacement: function(error, element) {
-                  if(element.parent('.input-group').length) {
-                      error.insertAfter(element.parent());
-                  } else {
-                      error.insertAfter(element);
-                  }
-              }//,
-              //success: function(label) {
-              //    label.text("OK!").addClass("valid");
-              //}
-          });
-
-          // add progress bar to inform on data upload and processing
-          var progress = $('.progress');
-          var bar = $('.progress-bar');
-          var resetBtn = $('#reset');
-          var submitBtn = $('#submit');
-          var results = $('#results');
-          var pepfile = $('#pep_file');
-          var protfile = $('#prot_file');
-          var flag = true; // flag to prevent re-init the progress bar in Firefox.
-
-          // prepare options object for ajaxForm
-          var options = {
-              beforeSend: function(xhr) {
-                  resetBtn.click(function() {// cancel submit and reset progress bar
-                      submitBtn.removeAttr('disabled');
-                      bar.width('0%');
-                      results.html('');
-                      xhr.abort();
-                  });
-              },
-              beforeSubmit: function() {
-                  var retval = true;
-                  flag = true;
-                  bar.width('0%');
-                  results.html('');
-                  progress.removeClass('progress-striped active');
-                  $.removeCookie('session_id');
-
-                  // check input files: highlight fields if incorrect file names
-                  // IE ver<10 do not implement HTML5 FileAPI
-                  if (pepfile[0].value.replace(/C:\\fakepath\\/i, '') != 'evidence.txt') {
-                      pepfile.closest('.form-group').addClass('has-error');
-                      retval = false;
-                  }
-
-                  if (protfile[0].value.replace(/C:\\fakepath\\/i, '') != 'proteinGroups.txt') {
-                      protfile.closest('.form-group').addClass('has-error');
-                      retval = false;
-                  }
-
-                  if (retval) {
-                      submitBtn.attr('disabled', 'true');
-                      results.removeClass('label-success label-danger');
-                      results.html('Submitted...');
-                  }
-
-                  return retval;
-              },
-              uploadProgress: function(event, position, total, percentComplete) {
-                  // fix: percentComplete sometimes exceeds 100% when uploading large files???
-                  if (percentComplete > 100) percentComplete = percentComplete - 100;
-                  // fix: percentComplete doesn't always reach 100% in Firefox???
-                  percentComplete = percentComplete + 2;
-                  bar.width(percentComplete + '%');
-
-                  if (percentComplete > 0 && percentComplete < 100) {
-                      results.html('Uploading the data...' + percentComplete + '%');
-                  } else {
-                      if (flag) {
-                          results.html('Uploading completed.');    
-                          setTimeout(function() {
-                              results.html('Processing the data may take several minutes...');
-                              progress.addClass('progress-striped active');
-                          }, 5000); // set delay time to 5s
-                          flag = false;
-                      }
-                  }
-              },
-              success: function() {
-                  submitBtn.removeAttr('disabled');
-                  bar.width('100%');
-                  progress.removeClass('progress-striped active');
-                  results.html('Processing completed.');
-              },
-              error: function() {
-                  submitBtn.removeAttr('disabled');
-                  bar.width('0%');
-                  results.html('');
-              },
-              complete: function(xhr) {
-                  var response = xhr.responseText; // store the response from the server
-                  if (response) {
-                      if (response.length == 40) { // when jobID returned
-                          var jobId = response;
-                          results.addClass('label-success');
-                          results.html('Done! Click <a href="results/' + jobId + '" target="_blank">here</a> to open the results page.');
-                      } else { // when error message returned
-                          results.addClass('label-danger');
-                          var uri = "data:text/html," + encodeURIComponent(response);
-                          results.html('Failed! <a href="' + uri + '" target="_blank">Show</a> the error message.');
-                          window.open(uri);
-                      }
-                  }
-              }
-          };
-
-          // pass options to ajaxForm
-          myForm.ajaxForm(options);
+    // main
+    $(document).ready(function() {
+      var myForm = $('#uploadForm');
+      myForm.validate({
+        rules: {
+          dts_name: {
+            required: true
+          },
+          pep_file: {
+            required: true,
+            accept: 'text/plain',
+            extension: 'txt'
+          },
+          prot_file: {
+            required: true,
+            accept: 'text/plain',
+            extension: 'txt'
+          },
+          fasta_file: {
+            required: true,
+            accept: ',application/x-download',
+            extension: 'fa|fasta',
+          }
+        },
+        highlight: function(element) {
+          $(element).closest('.form-group').addClass('has-error');
+        },
+        unhighlight: function(element) {
+          $(element).closest('.form-group').removeClass('has-error');
+        },
+        errorElement: 'label',
+        errorClass: 'help-block',
+        errorPlacement: function(error, element) {
+          if (element.parent('.input-group').length) {
+            error.insertAfter(element.parent());
+          } else {
+            error.insertAfter(element);
+          }
+        },
+        success: function(label) {
+          label.text('OK!').addClass('valid');
+        }
       });
 
+      // add progress bar to inform on data upload and processing
+      var progress = $('.progress');
+      var bar = $('.progress-bar');
+      var resetBtn = $('#reset');
+      var submitBtn = $('#submit');
+      var results = $('#results');
+      var pepfile = $('#pep_file');
+      var protfile = $('#prot_file');
+      var flag = true; // flag to prevent re-init the progress bar in Firefox.
+
+      // prepare options object for ajaxForm
+      var options = {
+        beforeSend: function(xhr) {
+          resetBtn.click(function() { // cancel submit and reset progress bar
+            submitBtn.removeAttr('disabled');
+            bar.width('0%');
+            results.html('');
+            xhr.abort();
+          });
+        },
+        beforeSubmit: function() {
+          var retval = true;
+          flag = true;
+          bar.width('0%');
+          results.html('');
+          progress.removeClass('progress-striped active');
+          //$.removeCookie('session_id');
+
+          // check input files: highlight fields if incorrect file names
+          // IE ver<10 do not implement HTML5 FileAPI
+          if (pepfile[0].value.replace(/C:\\fakepath\\/i, '') != 'evidence.txt') {
+            pepfile.closest('.form-group').addClass('has-error');
+            retval = false;
+          }
+
+          if (protfile[0].value.replace(/C:\\fakepath\\/i, '') != 'proteinGroups.txt') {
+            protfile.closest('.form-group').addClass('has-error');
+            retval = false;
+          }
+
+          if (retval) {
+            submitBtn.attr('disabled', 'true');
+            results.removeClass('label-success label-danger');
+            results.html('Submitted...');
+          }
+          return retval;
+        },
+        uploadProgress: function(event, position, total, percentComplete) {
+          // fix: percentComplete sometimes exceeds 100% when uploading large files???
+          if (percentComplete > 100) percentComplete = percentComplete - 100;
+          // fix: percentComplete doesn't always reach 100% in Firefox???
+          percentComplete = percentComplete + 2;
+          bar.width(percentComplete + '%');
+
+          if (percentComplete > 0 && percentComplete < 100) {
+            results.html('Uploading data...' + percentComplete + '%');
+          } else {
+            if (flag) {
+              results.html('Uploading data completed.');
+              setTimeout(function() {
+                results.html('Processing data...');
+                progress.addClass('progress-striped active');
+              }, 5000); // set delay time to 5s
+              flag = false;
+            }
+          }
+        },
+        success: function() {
+          submitBtn.removeAttr('disabled');
+          bar.width('100%');
+          progress.removeClass('progress-striped active');
+          results.html('Processing data completed.');
+        },
+        error: function() {
+          submitBtn.removeAttr('disabled');
+          bar.width('0%');
+          results.html('');
+        },
+        complete: function(xhr) {
+          var response = xhr.responseText; // store the response from the server
+          if (response) {
+            if (response.length == 40) { // when jobID returned
+              var jobId = response;
+              results.addClass('label-success');
+              results.html('Done! Click <a href="results/' + jobId + '" target="_blank">here</a> to open the results page.');
+            } else { // when error message returned
+              results.addClass('label-danger');
+              var uri = "data:text/html," + encodeURIComponent(response);
+              results.html('Failed! <a href="' + uri + '" target="_blank">Show</a> the error message.');
+              window.open(uri);
+            }
+          }
+        }
+      };
+      // pass options to ajaxForm
+      myForm.ajaxForm(options);
+    });
     //]]>
-    </script>
-    <a href="https://github.com/arnikz/PIQMIe"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/365986a132ccd6a44c23a9169022c0b5c890c387/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f7265645f6161303030302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png"></img></a>
-    <div class="container">
-      <ul class="nav nav-pills" id="myTab">
-        <li class="active"><a href="#home" data-toggle="tab">PIQMIe</a></li>
-        <li><a href="#data" data-toggle="tab">Sample Data</a></li>
-        <li><a href="#help" data-toggle="tab">Help</a></li>
-        <li><a href="#news" data-toggle="tab" style="color: red;">News!</a></li>
-      </ul>
-      <div class="tab-content">
-        <div class="tab-pane fade" id="data">
-          <br />
-Here you find the <a href="download/a000000000000000000000000000000000000001/sampledata.tar.bz2">sample data</a> used as example input for the <i>PIQMIe</i> service, and the pre-computed  <a href="results/a000000000000000000000000000000000000001" target="_blank">results</a> including the <a href="download/a000000000000000000000000000000000000001/duplex_SILAC_hMSC.sqlite">database</a> obtained by executing this service. The data set was described in the published study on bone formation by <a href="https://doi.org/10.1074/mcp.M112.024927" target="_blank">Alves <i>et al.</i>, 2013</a>. The raw MS data were made available by the authors and then re-analyzed using the <a href="http://maxquant.org" target="_blank">MaxQuant</a> software (version 1.3.0.5) with the same parameter settings. However, for the MaxQuant/Andromeda search we used a more recent human FASTA sequence library from the UniProtKB database (release 2013_11) instead of the discontinued IPI database. In this study the effects of activin A on human mesenchymal stem cells (hMSC) derived osteoblast differentiation and mineralization was investigated using semi-quantitative mass spectrometry (MS)-based proteomics with duplex SILAC metabolic labeling. Specifically, it involved the reciprocal (inverse) labeling strategy, in which both the activin A treated and control samples were cultured on light and heavy istotope-enriched culture media, to obtain more reliable quantitative data compared to a single-experiment approach. The analysis focused on the composition and changes in the extracellular compartments, namely the extracellular matrix (ECM) and matrix vesicles (MVs).<br /><br />
-
-<table class="table table-hover table-bordered" style="width: auto;">
-  <caption class="pull-right">Table. List of SILAC experiments and conditions.</caption>
-  <tr>
-    <th>Experiment</th>
-    <th>Light</th>
-    <th>Heavy</th>
-  </tr>
-  <tr>
-    <td>ECM_LACT_HCTR</td>
-    <td>activin A</td>
-    <td>control</td>
-  </tr>
-  <tr>
-    <td>ECM_LCTR_HACT</td>
-    <td>control</td>
-    <td>activin A</td>
-  </tr>
-  <tr>
-    <td>MV_LACT_HCTR</td>
-    <td>activin A</td>
-    <td>control</td>
-  </tr>
-  <tr>
-    <td>MV_LCTR_HACT</td>
-    <td>control</td>
-    <td>activin A</td>
-  </tr>
-</table>
-        </div><!-- sample data -->
-
-        <div class="tab-pane fade" id="help">
-          <h4><a href="#">Content:</a></h4>
-          <ul>
-            <li><a href="#section1">Service description</a></li>
-            <li><a href="#section2">Prerequisites</a></li>
-            <li><a href="#section3">Workflow</a></li>
-            <li><a href="#section4">Data processing</a></li>
-            <li><a href="#section5">Results</a></li>
-            <li><a href="#section6">Data access and privacy</a></li>
-          </ul>
-          <hr />
-
-<h4><a href="#" id="section1">Service description</a></h4>
-<i>PIQMIe</i> (<b>P</b>roteomics <b>I</b>dentifications &amp; <b>Q</b>uantitations Data <b>M</b>anagement &amp; <b>I</b>ntegration Servic<b>e</b>) is a web-based tool that aids in the data management, analysis and visualization of semi-quantitative mass spectrometry (MS)-based proteomics experiments, in particular those using the stable isotope labeling with amino acids in cell culture (SILAC). In a typical SILAC proteome experiment, tens of thousands of peptides and thousands of (non-redundant) proteins are reliably identified and quantified from raw MS data, for example, using the <a href="http://www.maxquant.org/" target="_blank" title="MaxQuant">MaxQuant</a> software. Further downstream analyses of the resulting files are commonly carried out using stand-alone spreadsheet tools. Although such tools are useful they do not provide full control over the data as compared to a data management or information retrieval system. Moreover, they are prone to data-manipulation errors, lack interoperability and scalability. To remedy this, we have developed <i>PIQMIe</i> and deployed it on a scalable Cloud computing infrastructure operated by the <a href="https://www.surfsara.nl" target="_blank" title="SURFsara">Dutch national HPC and e-Science support center</a>.<hr />
-
-<h4><a href="#" id="section2">Prerequisites</a></h4>
-To make a full use of the <i>PIQMIe</i> service through the web interface, your web browser must be <b>Javascript and Pop-Up Windows enabled</b> as well as support <b>Scalable Vector Graphics (SVG)</b>. The web interface has been tested and works on all major browsers, namely Firefox (v26), Safari (v6.1), Opera (v12.16), Chrome (v31) and IE (v11). We recommend, however, to use the Firefox browser in combination with the <a href="https://code.google.com/p/sqlite-manager/" target="_blank">SQLite Manager</a> extension (add-on), which enables post-processed data set(s) to be queried locally.
-<br />
-<b>Note for Opera users</b>: the charts are not shown by default; to enable these you need to change your browser settings: go to Preferences &rarr; Advanced &rarr; Downloads &rarr; untick 'Hide file types opened with Opera' &rarr; delete the entry 'application/json'.<hr />
-
-<h4><a href="#" id="section3">Workflow</a></h4>
-Following the 'PIQMIe' link in the upper left panel (tab) you will find a data submission form with four mandatoryinput fields. <i>PIQMIe</i> requires the result files of a MaxQuant execution, namely <i>evidence.txt</i> and <i>proteinGroups.txt</i> (corresponding to peptide- and protein-level identifications/quantitations, respectively), and protein sequences in a FASTA-formatted library from the <a href="http://www.uniprot.org" target="_blank" title="UniProtKB">UniProtKB</a> database. The data files are then transformed into a single-file cross-platform <i>Integrated Proteomics database</i> (Figure 1).<br /><br />
-
-<figure>
-  <img src="img/workflow.png" alt="PIQMIe workflow" style="width: 1024px;" />
-  <figcaption>Figure 1. Computational proteomics workflow including the <i>PIQMIe</i> service.</figcaption>
-</figure>
-<br />
-
-In this relational database peptide and protein (group) identifications/quantitations from multiple experiments are readily stored and integrated with additional biological information such as official gene symbols, protein evidence, molecular functions, post-translational modifications etc. (Figure 2).<br /><br />
-
-<figure>
-  <img src="img/ER_diagram.png" alt="ER diagram of the database" style="width: 800px;" />
-  <figcaption>Figure 2. Entity-relationship diagram of the proteomics database. Note: Only the core tables are shown here.</figcaption>
-</figure>
-<br />
-
-
-In principle, other software could also be used to prepare the peptide and protein (group) lists; however, their formats must comply (partially) to those of the MaxQuant result files. Each list must be a tab-delimited text file with a header line containing the following columns (case-insensitive and order-independent):<br /><br />
-
-<!-- Table 1. Peptide list format -->
-<table class="table table-hover table-bordered" style="width: 50%; vertical-align: top; float: left;">
-  <caption class="pull-right">Table 1. List of fields parsed from <i>evidence.txt</i> file (peptide list).</caption>
-  <tr>
-    <th>Column name</th>
-    <th>Mandatory</th>
-  </tr>
-  <tr>
-    <td><sup>[1]</sup> Proteins</td>
-    <td>Yes</td>
-  </tr>
-  <tr>
-    <td>Leading proteins</td>
-    <td>Yes</td>
-  </tr>
-  <tr>
-    <td>Modified sequence</td>
-    <td>Yes</td>
-  </tr>
-  <tr>
-    <td>Charge</td>
-    <td>Yes</td>
-  </tr>
-  <tr>
-    <td>Mass</td>
-    <td>Yes</td>
-  </tr>
-  <tr>
-    <td>Calibrated retention time</td>
-    <td>Yes</td>
-  </tr>
-  <tr>
-    <td>Raw file</td>
-    <td>Yes</td>
-  </tr>
-  <tr>
-    <td>PEP</td>
-    <td>Yes</td>
-  </tr>
-  <tr>
-    <td>Reverse</td>
-    <td>Yes</td>
-  </tr>
-  <tr>
-    <td>Contaminant</td>
-    <td>Yes</td>
-  </tr>
-  <tr>
-    <td>Resolution</td>
-    <td>No</td>
-  </tr>
-  <tr>
-    <td>Intensity L <i>&lt;experiment name&gt;</i></td>
-    <td>No</td>
-  </tr>
-  <tr>
-    <td>Intensity M <i>&lt;experiment name&gt;</i></td>
-    <td>No</td>
-  </tr>
-  <tr>
-    <td>Intensity H <i>&lt;experiment name&gt;</i></td>
-    <td>No</td>
-  </tr>
-  <tr>
-    <td>Ratio H/L <i>&lt;experiment name&gt;</i></td>
-    <td>No</td>
-  </tr>
-  <tr>
-    <td>Ratio H/M <i>&lt;experiment name&gt;</i></td>
-    <td>No</td>
-  </tr>
-  <tr>
-    <td>Ratio M/L <i>&lt;experiment name&gt;</i></td>
-    <td>No</td>
-  </tr>
-  <tr>
-    <td>Ratio H/L normalized <i>&lt;experiment name&gt;</i></td>
-    <td>Yes</td>
-  </tr>
-  <tr>
-    <td>Ratio H/M normalized <i>&lt;experiment name&gt;</i></td>
-    <td>Yes</td>
-  </tr>
-  <tr>
-    <td>Ratio M/L normalized <i>&lt;experiment name&gt;</i></td>
-    <td>Yes</td>
-  </tr>
-  <tr><td colspan="2"><sup>[1]</sup> the column must contain exclusively UniProtKB accession(s) in the form <i>acc1;acc2;...</i></td></tr>
-</table>
-
-<!-- Table 2. Protein list format -->
-<table class="table table-hover table-bordered" style="width: 50%; vertical-align: top; float: left;">
-  <caption class="pull-right">Table 2. List of fields parsed from <i>proteinGroups.txt</i> file (protein list).</caption>
-  <tr>
-    <th>Column name</th>
-    <th>Mandatory</th>
-  </tr>
-  <tr>
-    <td><sup>[1]</sup> Protein IDs</td>
-    <td>Yes</td>
-  </tr>
-  <tr>
-    <td>PEP</td>
-    <td>Yes</td>
-  </tr>
-  <tr>
-    <td>Reverse</td>
-    <td>Yes</td>
-  </tr>
-  <tr>
-    <td>Contaminant</td>
-    <td>Yes</td>
-  </tr>
-  <tr>
-    <td>Intensity L <i>&lt;experiment name&gt;</i></td>
-    <td>No</td>
-  </tr>
-  <tr>
-    <td>Intensity M <i>&lt;experiment name&gt;</i></td>
-    <td>No</td>
-  </tr>
-  <tr>
-    <td>Intensity H <i>&lt;experiment name&gt;</i></td>
-    <td>No</td>
-  </tr>
-  <tr>
-    <td>Ratio H/L <i>&lt;experiment name&gt;</i></td>
-    <td>No</td>
-  </tr>
-  <tr>
-    <td>Ratio H/M <i>&lt;experiment name&gt;</i></td>
-    <td>No</td>
-  </tr>
-  <tr>
-    <td>Ratio M/L <i>&lt;experiment name&gt;</i></td>
-    <td>No</td>
-  </tr>
-  <tr>
-    <td>Ratio H/L normalized <i>&lt;experiment name&gt;</i></td>
-    <td>Yes</td>
-  </tr>
-  <tr>
-    <td>Ratio H/M normalized <i>&lt;experiment name&gt;</i></td>
-    <td>Yes</td>
-  </tr>
-  <tr>
-    <td>Ratio M/L normalized <i>&lt;experiment name&gt;</i></td>
-    <td>Yes</td>
-  </tr>
-  <tr>
-    <td>Ratio H/L variability [%] <i>&lt;experiment name&gt;</i></td>
-    <td>Yes</td>
-  </tr>
-  <tr>
-    <td>Ratio H/M variability [%] <i>&lt;experiment name&gt;</i></td>
-    <td>Yes</td>
-  </tr>
-  <tr>
-    <td>Ratio M/L variability [%] <i>&lt;experiment name&gt;</i></td>
-    <td>Yes</td>
-  </tr>
-  <tr>
-    <td>Ratio H/L count <i>&lt;experiment name&gt;</i></td>
-    <td>Yes</td>
-  </tr>
-  <tr>
-    <td>Ratio H/M count <i>&lt;experiment name&gt;</i></td>
-    <td>Yes</td>
-  </tr>
-  <tr>
-    <td>Ratio M/L count <i>&lt;experiment name&gt;</i></td>
-    <td>Yes</td>
-  </tr>
-  <tr>
-    <td><sup>[2]</sup> Ratio H/L normalized <i>&lt;experiment name&gt;</i> significance B</td>
-    <td>No</td>
-  </tr>
-  <tr>
-    <td><sup>[2]</sup> Ratio H/M normalized <i>&lt;experiment name&gt;</i> significance B</td>
-    <td>No</td>
-  </tr>
-  <tr>
-    <td><sup>[2]</sup> Ratio M/L normalized <i>&lt;experiment name&gt;</i> significance B</td>
-    <td>No</td>
-  </tr>
-  <tr><td colspan="2"><sup>[1]</sup> the column must contain exclusively UniProtKB accession(s) in the form <i>acc1;acc2;...</i></td></tr>
-  <tr><td colspan="2"><sup>[2]</sup> the column can be added e.g., using the <a href="http://www.perseus-framework.org" target="_blank">Perseus</a> software.</td></tr>
-</table>
-<hr />
-
-<h4><a href="#" id="section4">Data processing</a></h4>
-After pressing the <button id="example" class="btn btn-primary">Submit</button> button and successful client-side verification of the input (i.e., file extension, file name and MIME type), <i>PIQMIe</i> proceeds with uploading the user's data to the server. The progress of the submitted data is indicated with a progress bar and accompanied messages:
-<ul>
-  <li><i>Uploading the data...X%'</i></li>
-  <li><i>Uploading completed.</i></li>
-  <li><i>Processing the data. This may take several minutes...</i></li>
-  <li><i>Processing completed.</i></li>
-  <li><span style="background-color: #5CB85C;"><i>Done! Click here to open the results page.</i></span></li> - after successful processing a link with a <b>unique jobID</b> (40 alphanumeric chars) is provided to the results page,
-  <li><span style="background-color: #D9534F;"><i>Failed! Show the error message.</i></span></li> - a server-side error is raised if an input file exceeds the per-file size limit or the file has incorrect format etc. (for details refer to the submission page or to the <a href="#section3">Workflow</a> section).
-</ul>
-<hr/>
-
-<h4><a href="#" id="section5">Results</a></h4>
-A user is presented with a concise summary of the proteomics experiment(s) in numerical and graphical forms, as well as with a searchable grid of identified/quantified proteins and interactive visualization tools, namely the peptide coverage map and 2D scatterplot of protein quantitations, to aid the identification of potentially regulated proteins or interacting partners. The <a href="results/a000000000000000000000000000000000000001" target="_blank">results</a> page is organized in the following links (tabs) in the upper panel:
-
-<ul>
-  <li><b>Download</b> - this is a download area including the indexed data in the form of an <a href="http://www.sqlite.org" target="_blank">SQLite</a> database</li>
-  <li><b>Peptides</b> - provides a summary of peptide-level identifications/quantitations with the following <i>quality-control (QC)</i> measures:
-    <ul>
-      <li><i>n_pep_ids</i> - number of redundant peptide identifications, filtered for decoys and contaminants</li>
-      <li><i>n_pep_qts</i> - number of redundant peptide quantitations</li>
-      <li><i>n_unq_pep_seq+mod_ids</i> - number of non-redundant peptide identifications unique by sequence and modifications</li>
-      <li><i>n_unq_pep_seq+mod_qts</i> - number of non-redundant peptide quantitations unique by sequence and modifications</li>
-      <li><i>n_unq_pep_seq_ids</i> - number of non-redundant peptide identifications unique by sequence</li>
-      <li><i>n_unq_pep_seq_qts</i> - number of non-redundant peptide quantitations unique by sequence</li>
-      <li><i>n_pep_ids_decoys</i> - number of redundant peptides detected as decoys (false positives)</li>
-      <li><i>n_pep_ids_conts</i> - number of redundant peptides detected as contaminants</li>
-      <li><i>n_unq_pep_seq_decoys</i> - number of non-redundant peptide decoys unique by sequence</li>
-      <li><i>n_unq_pep_seq_conts</i> - number of non-redundant peptide contaminants unique by sequence</li>
+  </script>
+  <a href="https://github.com/arnikz/PIQMIe"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/365986a132ccd6a44c23a9169022c0b5c890c387/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f7265645f6161303030302e706e67"
+      alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png"></img></a>
+  <!-- Nav tabs -->
+  <div class="container">
+    <ul class="nav nav-pills" id="myTab" role="tablist">
+      <li class="nav-item">
+        <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="false">PIQMIe</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" id="data-tab" data-toggle="tab" href="#data" role="tab" aria-controls="data" aria-selected="false">Sample Data</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" id="help-tab" data-toggle="tab" href="#help" role="tab" aria-controls="help" aria-selected="false">Help</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" id="news-tab" data-toggle="tab" href="#news" role="tab" aria-controls="news" aria-selected="false">News</a>
+      </li>
     </ul>
-  </li>
-  <li><b>Proteins</b> - provides a summary of database-dependent protein identifications (e.g., given the human proteome) with the following QC measures:
-    <ul>
-      <li><i>db</i> - source database/section (UniProtKB/Swiss-Prot or UniProtKB/TrEMBL)</li>
-      <li><i>n_prot_acc</i> - number of protein accessions including isoforms in the source database (or FASTA sequence library)</li>
-      <li><i>n_prot_ids</i> - number of MS-based protein identifications (including isoforms and excluding decoys and contaminants)</li>
-      <li><i>n_prot_acc_evid_protein</i> - number of protein accessions with protein-level evidence</li>
-      <li><i>n_prot_acc_evid_transcript</i> - number of protein accessions with transcript-level evidence</li>
-      <li><i>n_prot_acc_evid_homology</i> - number of protein accessions with homology-based evidence</li>
-      <li><i>n_prot_acc_evid_predicted</i> - number of <i> in silico predicted</i> proteins</li>
-      <li><i>n_prot_acc_evid_uncertain</i> - number of protein accessions with uncertain evidence</li>
-    </ul>
-  </li>
-  <li><b>Protein Groups</b> - provides a summary of protein (group)-level identifications/quantitations with the following QC measures:
-    <ul>
-      <li><i>exp_name</i> - experiment name</li>
-      <li><i>n_pgrp_ids</i> - number of non-redundant protein identifications, filtered for decoys and contaminants</li>
-      <li><i>n_pgrp_qts</i> - number of non-redundant protein quantitations</li>
-      <li><i>n_pgrp_ids_by_site</i> - number of non-redudant proteins identified by modification site</li>
-      <li><i>n_pgrp_decoys</i> - number of non-redundant proteins detected as decoys (false positives)</li>
-      <li><i>n_pgrp_conts</i> - number of non-redundant proteins detected as contaminants</li>
-    </ul>
-  </li>
-  <li><b>Regulated Proteins</b> - provides a summary of potentially regulated non-redundant proteins using permissive cutoffs i.e. protein fold-change based on normalized ratio (FC&ge;1.5) and peak intensity-based ratio significance B (P&lt;0.05) with the following QC measures:
-    <ul>
-      <li><i>n_pgrp_ids</i> - union of differentially regulated proteins identified in all conditions, filtered for decoys and contaminants</li>
-      <li><i>n_pgrp_ids_H/L+L/H</i> - number of up- <i>AND</i> down-regulated proteins identified in both conditions H/L and L/H</li>
-      <li><i>n_pgrp_ids_H/L</i> - number of up- <i>OR</i> down-regulated proteins identified in the H/L condition</li>
-      <li><i>n_pgrp_ids_L/H</i> - number of up- <i>OR</i> down-regulated proteins identified in the L/H condition</li>
-      <li><i>n_pgrp_ids_H/M+M/H</i> - number of up- <i>AND</i> down-regulated proteins identified in both conditions H/M and M/H</li>
-      <li><i>n_pgrp_ids_H/M</i> - number of up- <i>OR</i> down-regulated proteins identified in the H/M condition</li>
-      <li><i>n_pgrp_ids_M/H</i> - number of up- <i>OR</i> down-regulated proteins identified in the M/H condition</li>
-      <li><i>n_pgrp_ids_M/L+L/M</i> - number of up- <i>AND</i> down-regulated proteins identified in both conditions M/L and L/M</li>
-      <li><i>n_pgrp_ids_M/L</i> - number of up- <i>OR</i> down-regulated proteins identified in the M/L condition</li>
-      <li><i>n_pgrp_ids_L/M</i> - number of up- <i>OR</i> down-regulated proteins identified in the L/M condition</li>
-    </ul>
-  </li>
-  <li><b>Search Grid</b> - enables to view, sort and filter the identified/quantified proteins using multiple criteria combined with Boolean and/or relational operators (Figure 3), as well as links the protein entries to the source database for additional biological information and to the <b>Peptide coverage map</b> (Figure 4).
-<br /><br />
+    <!-- Tab panes -->
+    <div class="tab-content">
+      <div class="tab-pane" id="data" role="tabpanel" aria-labelledby="data-tab">
+        <br />
+        Here you find the <a href="download/a000000000000000000000000000000000000001/sampledata.tar.bz2">sample data</a> used as example input for the <i>PIQMIe</i> service, and the pre-computed <a href="results/a000000000000000000000000000000000000001"
+          target="_blank">results</a> including the <a href="download/a000000000000000000000000000000000000001/duplex_SILAC_hMSC.sqlite">database</a> obtained by executing this service. The data set was described in the published study on bone
+        formation by <a href="https://doi.org/10.1074/mcp.M112.024927" target="_blank">Alves <i>et al.</i>, 2013</a>. The raw MS data were made available by the authors and then re-analyzed using the <a href="http://maxquant.org" target="_blank">MaxQuant</a>
+        software (version 1.3.0.5) with the same parameter settings. However, for the MaxQuant/Andromeda search we used a more recent human FASTA sequence library from the UniProtKB database (release 2013_11) instead of the discontinued IPI
+        database. In this study the effects of activin A on human mesenchymal stem cells (hMSC) derived osteoblast differentiation and mineralization was investigated using semi-quantitative mass spectrometry (MS)-based proteomics with duplex SILAC
+        metabolic labeling. Specifically, it involved the reciprocal (inverse) labeling strategy, in which both the activin A treated and control samples were cultured on light and heavy istotope-enriched culture media, to obtain more reliable
+        quantitative data compared to a single-experiment approach. The analysis focused on the composition and changes in the extracellular compartments, namely the extracellular matrix (ECM) and matrix vesicles (MVs).<br /><br />
 
-    <figure>
-      <img src="img/searchgrid.png" alt="Example search" style="width: 75%;" />
-      <figcaption>Figure 3. An example query made in the <b>Query Builder</b> to select up- or down-regulated phosphatases upon activin A signaling in the ECM samples only. </figcaption>
-    </figure><br />
+        <table class="table table-hover table-bordered" style="width: auto;">
+          <caption class="pull-right">Table. List of SILAC experiments and conditions.</caption>
+          <tr>
+            <th>Experiment</th>
+            <th>Light</th>
+            <th>Heavy</th>
+          </tr>
+          <tr>
+            <td>ECM_LACT_HCTR</td>
+            <td>activin A</td>
+            <td>control</td>
+          </tr>
+          <tr>
+            <td>ECM_LCTR_HACT</td>
+            <td>control</td>
+            <td>activin A</td>
+          </tr>
+          <tr>
+            <td>MV_LACT_HCTR</td>
+            <td>activin A</td>
+            <td>control</td>
+          </tr>
+          <tr>
+            <td>MV_LCTR_HACT</td>
+            <td>control</td>
+            <td>activin A</td>
+          </tr>
+        </table>
+      </div><!-- sample data -->
 
-    <figure>
-      <img src="img/pepmap.png" alt="Peptide coverage map of the ALPL proteins" style="width: 75%;" />
-      <figcaption>Figure 4. Identified peptides (in red) are shown on parent proteins from the curated Swiss-Prot (in blue) and/or uncurated TrEMBL (in gray) sections of the UniProtKB database. One of the protein accessions (UniProtKB: <a href="http://www.uniprot.org/uniprot/P05186" target="_blank">P05186</a>, in green) is selected as the best scoring or leading protein of the group.</figcaption>
-    </figure><br />
+      <div class="tab-pane" id="help" role="tabpanel" aria-labelledby="help-tab">
+        <h5><a href="#">Contents</a></h5>
+        <ul>
+          <li><a href="#section1">Service description</a></li>
+          <li><a href="#section2">Prerequisites</a></li>
+          <li><a href="#section3">Workflow</a></li>
+          <li><a href="#section4">Data processing</a></li>
+          <li><a href="#section5">Results</a></li>
+          <li><a href="#section6">Data access and privacy</a></li>
+        </ul>
+        <hr />
 
-  </li>
-  <li><b>Scatterplot</b> - enables to view protein quantitations (i.e., normalized SILAC ratios) for two experiments simultaneously to detect differentially regulated proteins with higher confidence compared to a single experiment (Figure 5)</li><br />
+        <h5><a href="#" id="section1">Service description</a></h5>
+        <i>PIQMIe</i> (<b>P</b>roteomics <b>I</b>dentifications &amp; <b>Q</b>uantitations Data <b>M</b>anagement &amp; <b>I</b>ntegration Servic<b>e</b>) is a web-based tool that aids in the data management, analysis and visualization of
+        semi-quantitative mass spectrometry (MS)-based proteomics experiments, in particular those using the stable isotope labeling with amino acids in cell culture (SILAC). In a typical SILAC proteome experiment, tens of thousands of peptides and
+        thousands of (non-redundant) proteins are reliably identified and quantified from raw MS data, for example, using the <a href="http://www.maxquant.org/" target="_blank" title="MaxQuant">MaxQuant</a> software. Further downstream analyses of
+        the resulting files are commonly carried out using stand-alone spreadsheet tools. Although such tools are useful they do not provide full control over the data as compared to a data management or information retrieval system. Moreover, they
+        are prone to data-manipulation errors, lack interoperability and scalability. To remedy this, we have developed <i>PIQMIe</i> and deployed it on a scalable Cloud computing infrastructure operated by the <a href="https://www.surfsara.nl"
+          target="_blank" title="SURFsara">Dutch national HPC and e-Science support center</a>.
+        <hr />
 
-    <figure>
-      <img src="img/scatterplot.png" alt="Scatterplot" style="width: 50%;" />
-      <figcaption>Figure 5. Scatterplot of protein quantitations from duplex SILAC reciprocal (label-swap) experiments. For example, protein group annotated as UTP-glucose-1-phosphate uridyltransferase (<a href="pepmap/a000000000000000000000000000000000000001?grp_id=258" target="_blank">UGP2</a>) shows consistent up-regulation upon activin A signaling in both ECM experiments.</figcaption>
-    </figure><br />
+        <h5><a href="#" id="section2">Prerequisites</a></h5>
+        To make a full use of the <i>PIQMIe</i> service through the web interface, your web browser must be <b>Javascript and Pop-Up Windows enabled</b> as well as support <b>Scalable Vector Graphics (SVG)</b>. The web interface has been tested and
+        works on all major browsers, namely Firefox (v26), Safari (v6.1), Opera (v12.16), Chrome (v31) and IE (v11). We recommend, however, to use the Firefox browser in combination with the <a href="https://code.google.com/p/sqlite-manager/" target="_blank">SQLite
+          Manager</a> extension (add-on), which enables post-processed data set(s) to be queried locally.
+        <br />
+        <b>Note for Opera users</b>: the charts are not shown by default; to enable these you need to change your browser settings: go to Preferences &rarr; Advanced &rarr; Downloads &rarr; untick 'Hide file types opened with Opera' &rarr; delete
+        the entry 'application/json'.
+        <hr />
 
-</ul>
-<hr />
+        <h5><a href="#" id="section3">Workflow</a></h5>
+        Following the 'PIQMIe' link in the upper left panel (tab) you will find a data submission form with four mandatoryinput fields. <i>PIQMIe</i> requires the result files of a MaxQuant execution, namely <i>evidence.txt</i> and <i>proteinGroups.txt</i>
+        (corresponding to peptide- and protein-level identifications/quantitations, respectively), and protein sequences in a FASTA-formatted library from the <a href="http://www.uniprot.org" target="_blank" title="UniProtKB">UniProtKB</a> database.
+        The data files are then transformed into a single-file cross-platform <i>Integrated Proteomics database</i> (Figure 1).<br /><br />
 
-<h4><a href="#" id="section6">Data access and privacy</a></h4>
-Users can access their data sets using unique jobID upon successful processing:
+        <figure>
+          <img src="img/workflow.png" alt="PIQMIe workflow" style="width: 1024px;" />
+          <figcaption>Figure 1. Computational proteomics workflow including the <i>PIQMIe</i> service.</figcaption>
+        </figure>
+        <br />
 
-<ul>
-  <li>via the website
-    <p><i>http://piqmie.semiqprot-emc.cloudlet.sara.nl/results/{your jobID}</i></p>
-  </li>
-  <li>via RESTful API that returns data in <a href="http://www.json.org" target="_blank">JSON</a> format:
-    <ul>
-      <li><i>../rest/{your jobID}/statpep</i> returns a peptide-level summary as shown in the <i>Peptides</i> tab</li>
-      <li><i>../rest/{your jobID}/statprot</i> returns a protein-level summary as shown in the <i>Proteins</i> tab</li>
-      <li><i>../rest/{your jobID}/statgrp</i> returns a protein group-level summary as shown in the <i>Protein Groups</i> tab</li>
-      <li><i>../rest/{your jobID}/statregrp</i> returns a summary of differentially regulated proteins <i>per</i> experiment as shown in the <i>Regulated Proteins</i> tab</li>
-      <li><i>../rest/{your jobID}/grp</i> returns the same table presented in the <i>Search Grid</i> tab</li>
-      <li><i>../rest/{your jobID}/pepmap?grp_id={group ID}&amp;[exp={experiment name1,...}]</i> returns peptide matches for a protein group and/or experiment(s) as used in the <i>Peptide coverage map</i></li>
-      <li><i>../rest/{your jobID}/cmpquant?exp1={experiment name}&amp;exp2={experiment name}&amp;ratio1={H/L, L/H,...}&amp;ratio2={H/L, L/H,...}&amp;cfratio=[1-10]&amp;cfpvalue=[0-1]</i> returns the same data as used in the <i>Scatterplot</i> tab</li>
-    </ul>
-  </li>
-  <li>download the database file to query the data locally via the Structured Query Language (SQL).
-  <p><i>../download/{your jobID}/{data set name}.sqlite</i></p></li>
-</ul>
+        In this relational database peptide and protein (group) identifications/quantitations from multiple experiments are readily stored and integrated with additional biological information such as official gene symbols, protein evidence,
+        molecular functions, post-translational modifications etc. (Figure 2).<br /><br />
 
-We ensure that your data are kept confidential and are deleted after one week upon uploading.
-<hr />
-        </div><!-- help page -->
+        <figure>
+          <img src="img/ER_diagram.png" alt="ER diagram of the database" style="width: 800px;" />
+          <figcaption>Figure 2. Entity-relationship diagram of the proteomics database. Note: Only the core tables are shown here.</figcaption>
+        </figure>
+        <br />
 
-        <div class="tab-pane fade in active" id="home">
-          <br />
-          <font size="3"><b>P</b>roteomics <b>I</b>dentifications &amp; <b>Q</b>uantitations Data <b>M</b>anagement &amp; <b>I</b>ntegration Servic<b>e</b>
-          </font>
-          <form id="uploadForm" action="upload" method="post" enctype="multipart/form-data">
-            <fieldset class="col-md-6">
-              <div class="well">
-                <div class="form-group">
-                  <label class="control-label" for="dts_name">Description:</label>
-                  <div class="input-group">
-                    <span class="input-group-addon"></span>
-                    <input class="form-control" id="dts_name" name="dts_name" placeholder="duplex SILAC on human mesenchymal stem cells" type="text" />
-                  </div><!-- .input-group -->
-                  <span class="help-block">Briefly describe your input data set.</span>
-                </div><!-- .form-group -->
-              
-                <div class="form-group">
-                  <label class="control-label" for="pep_file">Peptide IDs/quantifications:</label>
-                  <div class="input-group">
-                    <input id="pep_file" name="pep_file" type="file" />
-                  </div><!-- .input-group -->
-                  <span class="help-block">Select the MaxQuant <i>evidence.txt</i> file (max. size $max_pepfile_size MB).</span>
-                </div><!-- .form-group -->
 
-                <div class="form-group">
-                  <label class="control-label" for="prot_file">Protein IDs/quantifications:</label>
-                  <div class="input-group">
-                    <input id="prot_file" name="prot_file" type="file" />
-                  </div><!-- .input-group -->
-                  <span class="help-block">Select the MaxQuant <i>proteinGroups.txt</i> file (max. size $max_protfile_size MB).</span>
-                </div><!-- .form-group -->
+        In principle, other software could also be used to prepare the peptide and protein (group) lists; however, their formats must comply (partially) to those of the MaxQuant result files. Each list must be a tab-delimited text file with a header
+        line containing the following columns (case-insensitive and order-independent):<br /><br />
 
-                <div class="form-group">
-                  <label class="control-label" for="fasta_file">Protein sequences:</label>
-                  <div class="input-group">
-                    <input id="fasta_file" name="fasta_file" type="file" />
-                  </div><!-- .input-group -->
-                  <span class="help-block">Select the same FASTA sequence library from the <a href="http://www.uniprot.org" target="_blank" title="UniProtKB">UniProtKB</a> database as used for the MaxQuant/Andromeda search (max. size $max_fasta_size MB). The latest reference proteomes can be found <a href="ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/reference_proteomes/" target="_blank">here</a>.</span>
-                  <span class="label-warning"><b>Important:</b> The sequence library must contain exclusively <a href="http://www.uniprot.org/help/fasta-headers" target="_blank">UniProtKB headers</a>.
+        <!-- Table 1. Peptide list format -->
+        <table class="table table-hover table-bordered" style="width: 50%; vertical-align: top; float: left;">
+          <caption class="pull-right">Table 1. List of fields parsed from <i>evidence.txt</i> file (peptide list).</caption>
+          <tr>
+            <th>Column name</th>
+            <th>Mandatory</th>
+          </tr>
+          <tr>
+            <td><sup>[1]</sup> Proteins</td>
+            <td>Yes</td>
+          </tr>
+          <tr>
+            <td>Leading proteins</td>
+            <td>Yes</td>
+          </tr>
+          <tr>
+            <td>Modified sequence</td>
+            <td>Yes</td>
+          </tr>
+          <tr>
+            <td>Charge</td>
+            <td>Yes</td>
+          </tr>
+          <tr>
+            <td>Mass</td>
+            <td>Yes</td>
+          </tr>
+          <tr>
+            <td>Calibrated retention time</td>
+            <td>Yes</td>
+          </tr>
+          <tr>
+            <td>Raw file</td>
+            <td>Yes</td>
+          </tr>
+          <tr>
+            <td>PEP</td>
+            <td>Yes</td>
+          </tr>
+          <tr>
+            <td>Reverse</td>
+            <td>Yes</td>
+          </tr>
+          <tr>
+            <td>Contaminant</td>
+            <td>Yes</td>
+          </tr>
+          <tr>
+            <td>Resolution</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td>Intensity L <i>&lt;experiment name&gt;</i></td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td>Intensity M <i>&lt;experiment name&gt;</i></td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td>Intensity H <i>&lt;experiment name&gt;</i></td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td>Ratio H/L <i>&lt;experiment name&gt;</i></td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td>Ratio H/M <i>&lt;experiment name&gt;</i></td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td>Ratio M/L <i>&lt;experiment name&gt;</i></td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td>Ratio H/L normalized <i>&lt;experiment name&gt;</i></td>
+            <td>Yes</td>
+          </tr>
+          <tr>
+            <td>Ratio H/M normalized <i>&lt;experiment name&gt;</i></td>
+            <td>Yes</td>
+          </tr>
+          <tr>
+            <td>Ratio M/L normalized <i>&lt;experiment name&gt;</i></td>
+            <td>Yes</td>
+          </tr>
+          <tr>
+            <td colspan="2"><sup>[1]</sup> the column must contain exclusively UniProtKB accession(s) in the form <i>acc1;acc2;...</i></td>
+          </tr>
+        </table>
+
+        <!-- Table 2. Protein list format -->
+        <table class="table table-hover table-bordered" style="width: 50%; vertical-align: top; float: left;">
+          <caption class="pull-right">Table 2. List of fields parsed from <i>proteinGroups.txt</i> file (protein list).</caption>
+          <tr>
+            <th>Column name</th>
+            <th>Mandatory</th>
+          </tr>
+          <tr>
+            <td><sup>[1]</sup> Protein IDs</td>
+            <td>Yes</td>
+          </tr>
+          <tr>
+            <td>PEP</td>
+            <td>Yes</td>
+          </tr>
+          <tr>
+            <td>Reverse</td>
+            <td>Yes</td>
+          </tr>
+          <tr>
+            <td>Contaminant</td>
+            <td>Yes</td>
+          </tr>
+          <tr>
+            <td>Intensity L <i>&lt;experiment name&gt;</i></td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td>Intensity M <i>&lt;experiment name&gt;</i></td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td>Intensity H <i>&lt;experiment name&gt;</i></td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td>Ratio H/L <i>&lt;experiment name&gt;</i></td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td>Ratio H/M <i>&lt;experiment name&gt;</i></td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td>Ratio M/L <i>&lt;experiment name&gt;</i></td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td>Ratio H/L normalized <i>&lt;experiment name&gt;</i></td>
+            <td>Yes</td>
+          </tr>
+          <tr>
+            <td>Ratio H/M normalized <i>&lt;experiment name&gt;</i></td>
+            <td>Yes</td>
+          </tr>
+          <tr>
+            <td>Ratio M/L normalized <i>&lt;experiment name&gt;</i></td>
+            <td>Yes</td>
+          </tr>
+          <tr>
+            <td>Ratio H/L variability [%] <i>&lt;experiment name&gt;</i></td>
+            <td>Yes</td>
+          </tr>
+          <tr>
+            <td>Ratio H/M variability [%] <i>&lt;experiment name&gt;</i></td>
+            <td>Yes</td>
+          </tr>
+          <tr>
+            <td>Ratio M/L variability [%] <i>&lt;experiment name&gt;</i></td>
+            <td>Yes</td>
+          </tr>
+          <tr>
+            <td>Ratio H/L count <i>&lt;experiment name&gt;</i></td>
+            <td>Yes</td>
+          </tr>
+          <tr>
+            <td>Ratio H/M count <i>&lt;experiment name&gt;</i></td>
+            <td>Yes</td>
+          </tr>
+          <tr>
+            <td>Ratio M/L count <i>&lt;experiment name&gt;</i></td>
+            <td>Yes</td>
+          </tr>
+          <tr>
+            <td><sup>[2]</sup> Ratio H/L normalized <i>&lt;experiment name&gt;</i> significance B</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><sup>[2]</sup> Ratio H/M normalized <i>&lt;experiment name&gt;</i> significance B</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><sup>[2]</sup> Ratio M/L normalized <i>&lt;experiment name&gt;</i> significance B</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td colspan="2"><sup>[1]</sup> the column must contain exclusively UniProtKB accession(s) in the form <i>acc1;acc2;...</i></td>
+          </tr>
+          <tr>
+            <td colspan="2"><sup>[2]</sup> the column can be added e.g., using the <a href="http://www.perseus-framework.org" target="_blank">Perseus</a> software.</td>
+          </tr>
+        </table>
+        <hr />
+
+        <h5><a href="#" id="section4">Data processing</a></h5>
+        After pressing the <button id="example" class="btn btn-primary">Submit</button> button and successful client-side verification of the input (i.e., file extension, file name and MIME type), <i>PIQMIe</i> proceeds with uploading the user's
+        data to the server. The progress of the submitted data is indicated with a progress bar and accompanied messages:
+        <ul>
+          <li><i>Uploading the data...X%'</i></li>
+          <li><i>Uploading completed.</i></li>
+          <li><i>Processing the data. This may take several minutes...</i></li>
+          <li><i>Processing completed.</i></li>
+          <li><span style="background-color: #5CB85C;"><i>Done! Click here to open the results page.</i></span></li> - after successful processing a link with a <b>unique jobID</b> (40 alphanumeric chars) is provided to the results page,
+          <li><span style="background-color: #D9534F;"><i>Failed! Show the error message.</i></span></li> - a server-side error is raised if an input file exceeds the per-file size limit or the file has incorrect format etc. (for details refer to
+          the submission page or to the <a href="#section3">Workflow</a> section).
+        </ul>
+        <hr />
+
+        <h5><a href="#" id="section5">Results</a></h5>
+        A user is presented with a concise summary of the proteomics experiment(s) in numerical and graphical forms, as well as with a searchable grid of identified/quantified proteins and interactive visualization tools, namely the peptide coverage
+        map and 2D scatterplot of protein quantitations, to aid the identification of potentially regulated proteins or interacting partners. The <a href="results/a000000000000000000000000000000000000001" target="_blank">results</a> page is
+        organized in the following links (tabs) in the upper panel:
+
+        <ul>
+          <li><b>Download</b> - this is a download area including the indexed data in the form of an <a href="http://www.sqlite.org" target="_blank">SQLite</a> database</li>
+          <li><b>Peptides</b> - provides a summary of peptide-level identifications/quantitations with the following <i>quality-control (QC)</i> measures:
+            <ul>
+              <li><i>n_pep_ids</i> - number of redundant peptide identifications, filtered for decoys and contaminants</li>
+              <li><i>n_pep_qts</i> - number of redundant peptide quantitations</li>
+              <li><i>n_unq_pep_seq+mod_ids</i> - number of non-redundant peptide identifications unique by sequence and modifications</li>
+              <li><i>n_unq_pep_seq+mod_qts</i> - number of non-redundant peptide quantitations unique by sequence and modifications</li>
+              <li><i>n_unq_pep_seq_ids</i> - number of non-redundant peptide identifications unique by sequence</li>
+              <li><i>n_unq_pep_seq_qts</i> - number of non-redundant peptide quantitations unique by sequence</li>
+              <li><i>n_pep_ids_decoys</i> - number of redundant peptides detected as decoys (false positives)</li>
+              <li><i>n_pep_ids_conts</i> - number of redundant peptides detected as contaminants</li>
+              <li><i>n_unq_pep_seq_decoys</i> - number of non-redundant peptide decoys unique by sequence</li>
+              <li><i>n_unq_pep_seq_conts</i> - number of non-redundant peptide contaminants unique by sequence</li>
+            </ul>
+          </li>
+          <li><b>Proteins</b> - provides a summary of database-dependent protein identifications (e.g., given the human proteome) with the following QC measures:
+            <ul>
+              <li><i>db</i> - source database/section (UniProtKB/Swiss-Prot or UniProtKB/TrEMBL)</li>
+              <li><i>n_prot_acc</i> - number of protein accessions including isoforms in the source database (or FASTA sequence library)</li>
+              <li><i>n_prot_ids</i> - number of MS-based protein identifications (including isoforms and excluding decoys and contaminants)</li>
+              <li><i>n_prot_acc_evid_protein</i> - number of protein accessions with protein-level evidence</li>
+              <li><i>n_prot_acc_evid_transcript</i> - number of protein accessions with transcript-level evidence</li>
+              <li><i>n_prot_acc_evid_homology</i> - number of protein accessions with homology-based evidence</li>
+              <li><i>n_prot_acc_evid_predicted</i> - number of <i> in silico predicted</i> proteins</li>
+              <li><i>n_prot_acc_evid_uncertain</i> - number of protein accessions with uncertain evidence</li>
+            </ul>
+          </li>
+          <li><b>Protein Groups</b> - provides a summary of protein (group)-level identifications/quantitations with the following QC measures:
+            <ul>
+              <li><i>exp_name</i> - experiment name</li>
+              <li><i>n_pgrp_ids</i> - number of non-redundant protein identifications, filtered for decoys and contaminants</li>
+              <li><i>n_pgrp_qts</i> - number of non-redundant protein quantitations</li>
+              <li><i>n_pgrp_ids_by_site</i> - number of non-redudant proteins identified by modification site</li>
+              <li><i>n_pgrp_decoys</i> - number of non-redundant proteins detected as decoys (false positives)</li>
+              <li><i>n_pgrp_conts</i> - number of non-redundant proteins detected as contaminants</li>
+            </ul>
+          </li>
+          <li><b>Regulated Proteins</b> - provides a summary of potentially regulated non-redundant proteins using permissive cutoffs i.e. protein fold-change based on normalized ratio (FC&ge;1.5) and peak intensity-based ratio significance B
+            (P&lt;0.05) with the following QC measures:
+            <ul>
+              <li><i>n_pgrp_ids</i> - union of differentially regulated proteins identified in all conditions, filtered for decoys and contaminants</li>
+              <li><i>n_pgrp_ids_H/L+L/H</i> - number of up- <i>AND</i> down-regulated proteins identified in both conditions H/L and L/H</li>
+              <li><i>n_pgrp_ids_H/L</i> - number of up- <i>OR</i> down-regulated proteins identified in the H/L condition</li>
+              <li><i>n_pgrp_ids_L/H</i> - number of up- <i>OR</i> down-regulated proteins identified in the L/H condition</li>
+              <li><i>n_pgrp_ids_H/M+M/H</i> - number of up- <i>AND</i> down-regulated proteins identified in both conditions H/M and M/H</li>
+              <li><i>n_pgrp_ids_H/M</i> - number of up- <i>OR</i> down-regulated proteins identified in the H/M condition</li>
+              <li><i>n_pgrp_ids_M/H</i> - number of up- <i>OR</i> down-regulated proteins identified in the M/H condition</li>
+              <li><i>n_pgrp_ids_M/L+L/M</i> - number of up- <i>AND</i> down-regulated proteins identified in both conditions M/L and L/M</li>
+              <li><i>n_pgrp_ids_M/L</i> - number of up- <i>OR</i> down-regulated proteins identified in the M/L condition</li>
+              <li><i>n_pgrp_ids_L/M</i> - number of up- <i>OR</i> down-regulated proteins identified in the L/M condition</li>
+            </ul>
+          </li>
+          <li><b>Search Grid</b> - enables to view, sort and filter the identified/quantified proteins using multiple criteria combined with Boolean and/or relational operators (Figure 3), as well as links the protein entries to the source database
+            for additional biological information and to the <b>Peptide coverage map</b> (Figure 4).
+            <br /><br />
+
+            <figure>
+              <img src="img/searchgrid.png" alt="Example search" style="width: 75%;" />
+              <figcaption>Figure 3. An example query made in the <b>Query Builder</b> to select up- or down-regulated phosphatases upon activin A signaling in the ECM samples only. </figcaption>
+            </figure><br />
+
+            <figure>
+              <img src="img/pepmap.png" alt="Peptide coverage map of the ALPL proteins" style="width: 75%;" />
+              <figcaption>Figure 4. Identified peptides (in red) are shown on parent proteins from the curated Swiss-Prot (in blue) and/or uncurated TrEMBL (in gray) sections of the UniProtKB database. One of the protein accessions (UniProtKB: <a
+                  href="http://www.uniprot.org/uniprot/P05186" target="_blank">P05186</a>, in green) is selected as the best scoring or leading protein of the group.</figcaption>
+            </figure><br />
+
+          </li>
+          <li><b>Scatterplot</b> - enables to view protein quantitations (i.e., normalized SILAC ratios) for two experiments simultaneously to detect differentially regulated proteins with higher confidence compared to a single experiment (Figure 5)</li><br />
+
+          <figure>
+            <img src="img/scatterplot.png" alt="Scatterplot" style="width: 50%;" />
+            <figcaption>Figure 5. Scatterplot of protein quantitations from duplex SILAC reciprocal (label-swap) experiments. For example, protein group annotated as UTP-glucose-1-phosphate uridyltransferase (<a href="pepmap/a000000000000000000000000000000000000001?grp_id=258"
+                target="_blank">UGP2</a>) shows consistent up-regulation upon activin A signaling in both ECM experiments.</figcaption>
+          </figure><br />
+
+        </ul>
+        <hr />
+
+        <h5><a href="#" id="section6">Data access and privacy</a></h5>
+        Users can access their data sets using unique jobID upon successful processing:
+
+        <ul>
+          <li>via the website
+            <p><i>http://piqmie.semiqprot-emc.cloudlet.sara.nl/results/{your jobID}</i></p>
+          </li>
+          <li>via RESTful API that returns data in <a href="http://www.json.org" target="_blank">JSON</a> format:
+            <ul>
+              <li><i>../rest/{your jobID}/statpep</i> returns a peptide-level summary as shown in the <i>Peptides</i> tab</li>
+              <li><i>../rest/{your jobID}/statprot</i> returns a protein-level summary as shown in the <i>Proteins</i> tab</li>
+              <li><i>../rest/{your jobID}/statgrp</i> returns a protein group-level summary as shown in the <i>Protein Groups</i> tab</li>
+              <li><i>../rest/{your jobID}/statregrp</i> returns a summary of differentially regulated proteins <i>per</i> experiment as shown in the <i>Regulated Proteins</i> tab</li>
+              <li><i>../rest/{your jobID}/grp</i> returns the same table presented in the <i>Search Grid</i> tab</li>
+              <li><i>../rest/{your jobID}/pepmap?grp_id={group ID}&amp;[exp={experiment name1,...}]</i> returns peptide matches for a protein group and/or experiment(s) as used in the <i>Peptide coverage map</i></li>
+              <li><i>../rest/{your jobID}/cmpquant?exp1={experiment name}&amp;exp2={experiment name}&amp;ratio1={H/L, L/H,...}&amp;ratio2={H/L, L/H,...}&amp;cfratio=[1-10]&amp;cfpvalue=[0-1]</i> returns the same data as used in the <i>Scatterplot</i>
+                tab</li>
+            </ul>
+          </li>
+          <li>download the database file to query the data locally via the Structured Query Language (SQL).
+            <p><i>../download/{your jobID}/{data set name}.sqlite</i></p>
+          </li>
+        </ul>
+
+        We ensure that your data are kept confidential and are deleted after one week upon uploading.
+        <hr />
+      </div><!-- help page -->
+
+      <div class="tab-pane active" id="home" role="tabpanel" aria-labelledby="home-tab">
+        <br />
+        <font size="3"><b>P</b>roteomics <b>I</b>dentifications &amp; <b>Q</b>uantitations Data <b>M</b>anagement &amp; <b>I</b>ntegration Servic<b>e</b></font>
+        <form id="uploadForm" action="upload" method="post" enctype="multipart/form-data">
+          <fieldset class="col-md-6">
+            <div class="well">
+              <div class="form-group">
+                <label class="control-label" for="dts_name">Description:</label>
+                <div class="input-group">
+                  <span class="input-group-addon"></span>
+                  <input class="form-control" id="dts_name" name="dts_name" placeholder="duplex SILAC on human mesenchymal stem cells" type="text" />
+                </div><!-- .input-group -->
+                <span class="help-block">Briefly describe your input data set.</span>
+              </div><!-- .form-group -->
+
+              <div class="form-group">
+                <label class="control-label" for="pep_file">Peptide IDs/quantifications:</label>
+                <div class="input-group">
+                  <input id="pep_file" name="pep_file" type="file" />
+                </div><!-- .input-group -->
+                <span class="help-block">Select the MaxQuant <i>evidence.txt</i> file (max. size $max_pepfile_size MB).</span>
+              </div><!-- .form-group -->
+
+              <div class="form-group">
+                <label class="control-label" for="prot_file">Protein IDs/quantifications:</label>
+                <div class="input-group">
+                  <input id="prot_file" name="prot_file" type="file" />
+                </div><!-- .input-group -->
+                <span class="help-block">Select the MaxQuant <i>proteinGroups.txt</i> file (max. size $max_protfile_size MB).</span>
+              </div><!-- .form-group -->
+
+              <div class="form-group">
+                <label class="control-label" for="fasta_file">Protein sequences:</label>
+                <div class="input-group">
+                  <input id="fasta_file" name="fasta_file" type="file" />
+                </div><!-- .input-group -->
+                <span class="help-block">Select the same FASTA sequence library from the <a href="http://www.uniprot.org" target="_blank" title="UniProtKB">UniProtKB</a> database as used for the MaxQuant/Andromeda search (max. size $max_fasta_size
+                  MB). The latest reference proteomes can be found <a href="ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/reference_proteomes/" target="_blank">here</a>.</span>
+                <span class="label-warning"><b>Important:</b> The sequence library must contain exclusively <a href="http://www.uniprot.org/help/fasta-headers" target="_blank">UniProtKB headers</a>.
                   MaxQuant result files obtained by Andromeda searches against a FASTA library from the discontinued IPI database are not supported!!!</span>
-                </div><!-- .form-group -->
+              </div><!-- .form-group -->
 
-                <div class="form-group">
-                  <label class="control-label" for="progress">Job status:&nbsp;</label>
-                  <span id="results"></span>
-                  <div class="progress" title="Display the progress of data upload and processing.">
-                    <div class="progress-bar" style="width: 0%;"></div>
-                  </div>
+              <div class="form-group">
+                <label class="control-label" for="progress">Job status:&nbsp;</label>
+                <span id="results"></span>
+                <div class="progress" title="Display the progress of data upload and processing.">
+                  <div class="progress-bar" style="width: 0%;"></div>
+                </div>
 
-                  <div class="text-center">
-                    <button id="submit" type="submit" class="btn btn-primary">Submit</button>  
-                    <button id="reset" type="reset"  class="btn btn-danger">Reset</button>
-                  </div>
-                </div><!-- .form-group -->
-              </div><!-- .well -->
-            </fieldset>
-          </form>
-        </div><!-- .tab-pane -->
-        <div class="tab-pane fade" id="news">
-          <!--<h5><i>dd-mm-yy</i></h5>
+                <div class="text-center">
+                  <button id="submit" type="submit" class="btn btn-primary">Submit</button>
+                  <button id="reset" type="reset" class="btn btn-danger">Reset</button>
+                </div>
+              </div><!-- .form-group -->
+            </div><!-- .well -->
+          </fieldset>
+        </form>
+      </div><!-- .tab-pane -->
+      <div class="tab-pane" id="news" role="tabpanel" aria-labelledby="news-tab">
+        <!--<h5><i>dd-mm-yy</i></h5>
           <ul>
             <li>added new data</li>
           </ul>-->
-        </div>
-      </div><!-- .tab-content -->
-    </div><!-- .container -->
-  </body>
+      </div>
+    </div><!-- .tab-content -->
+  </div><!-- .container -->
+</body>
+
 </html>
