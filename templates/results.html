@@ -12,8 +12,7 @@
     <title>PIQMIe: Results page</title>
 
     <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css" type="text/css" media="screen" />
-    <link rel="stylesheet" href="../node_modules/jqgrid/css/ui.jqgrid.css" type="text/css" media="screen" />
-
+    <link rel="stylesheet" href="../node_modules/jqGrid/css/ui.jqgrid.css" type="text/css" media="screen" />
     <style type="text/css">
 
       iframe {
@@ -54,8 +53,8 @@
   <body>
     <!-- Load Javascript libs -->
     <script type="text/javascript" src="../node_modules/jquery/dist/jquery.min.js" charset="utf-8"></script>
-    <script type="text/javascript" src="../node_modules/jqgrid/js/i18n/grid.locale-en.js" charset="utf-8"></script>
-    <script type="text/javascript" src="../node_modules/jqgrid/js/jquery.jqGrid.src.js" charset="utf-8"></script>
+    <script type="text/javascript" src="../node_modules/jqGrid/js/i18n/grid.locale-en.js" charset="utf-8"></script>
+    <script type="text/javascript" src="../node_modules/jqGrid/js/jquery.jqGrid.min.js" charset="utf-8"></script>
     <script type="text/javascript" src="../node_modules/bootstrap/dist/js/bootstrap.min.js" charset="utf-8"></script>
     <script type="text/javascript" src="../node_modules/d3/dist/d3.min.js" charset="utf-8"></script>
     <script type="text/javascript" src="../js/custom.js" charset="utf-8"></script>
@@ -71,18 +70,19 @@
               var url = '../rest/' + session_id + '/' + query_str;
               var throbber = $('#' + query_str + ' .throbber');
 
-              if(query_str == 'grp') {
+              // add content depending on the tab pane
+              if (query_str == 'grp') {
                   var grid_sel = '#searchgrid'; // grid selector
                   searchableGrid(url, grid_sel, session_id, exp_states);
               } else { // 'statpep', 'statprot' or 'statgrp' selected
                   var table_sel = '#' + query_str + ' .sumtable'; // table selector
                   var chart_sel = '#' + query_str + ' .barchart'; // chart selector
-                  d3.json(url, function(error, json) { // fetch JSON data
-                      tabulate(json, table_sel);       // tabulate data
-                      drawChart(json, chart_sel);      // plot data in barchart
-                      throbber.fadeOut();
+                  d3.json(url).then(function(data) {  // fetch data in JSON
+                      tabulate(data, table_sel);      // tabulate data
+                      drawChart(data, chart_sel);     // plot barchart
                   });
               }
+              throbber.fadeOut();
           });
 
           // add tab selector

@@ -1,5 +1,4 @@
 /* Tabulate JSON data using D3.js */
-
 var acronyms = {
    // Peptides
    'n_pep_ids' : 'number of redundant peptide identifications, filtered for decoys and contaminants',
@@ -49,7 +48,7 @@ function tabulate(json, elem) {
     var table = d3.select(elem)
         .append("table")
         .attr("class", "table table-hover table-bordered");
- 
+
     var thead = table.append("thead")
         .append("tr")
         .selectAll("th")
@@ -111,38 +110,29 @@ function drawChart(json, elem) {
         width = (w1 > w2) ? w1 : w2;
         height = 480 - margin.top - margin.bottom;
 
-    var color = d3.scale.category10();
+    var color = d3.scaleOrdinal(d3.schemeCategory10);
     var maxValue = d3.max(json, function(d) {
         return d3.max(d.values, function(d) {
             return d.value;
         });
     });
 
-    var x0 = d3.scale.ordinal()
+    var x0 = d3.scaleBand()
         .domain(categories)
-        .rangeRoundBands([0, width], .1);
+        .rangeRound([0, width], .1);
 
-    var x1 = d3.scale.ordinal()
+    var x1 = d3.scaleBand()
         .domain(attrNames)
-        .rangeRoundBands([0, x0.rangeBand()]);
+        .rangeRound([0, x0.range()]);
 
-    var y = d3.scale.linear()
+    var y = d3.scaleLinear()
         .domain([0, maxValue])
         .range([height, 0])
         .nice();
 
-    var xAxis = d3.svg.axis()
-        .scale(x0)
-        .orient("bottom");
-
-    var yAxis = d3.svg.axis()
-        .scale(y)
-        .orient("left");
-
     var fmtype = (maxValue > 1000) ? ".2s" : "d";
-
-    yAxis.tickFormat(d3.format(fmtype));
-
+    var xAxis = d3.axisBottom(x0);
+    var yAxis = d3.axisLeft(y).tickFormat(d3.format(fmtype));
     var svg = d3.select(elem)
         .append("svg")
         .attr("width", width + margin.left + margin.right)
@@ -202,7 +192,7 @@ function drawChart(json, elem) {
         .attr("width", x1.rangeBand())
         .style("fill", function(d) { return color(d.name); })
         .append("svg:title").text(function(d) { return(d.value); });
-
+    return; // ** DEBUG **
     var legend = svg.selectAll(".legend")
         .data(attrNames)
         .enter().append("g")
@@ -303,7 +293,7 @@ function protAccFormat(cellValue, options, rowObject) {
          }
 
         cellValue += '<a href="' + url + acc + '" target="_blank" title="Link to UniProtKB" class="link">' + acc + "</a>&nbsp;";
-        curDb = db; 
+        curDb = db;
     }
     return cellValue;
 }
@@ -425,9 +415,7 @@ function searchableGrid(url, elem, sessionId, expStates) {
 
     var template1 = (expStates == 2) ? templateDuplex1 : templateTriplex1;
     var template2 = (expStates == 2) ? templateDuplex2 : templateTriplex2;
-
-    var grid = jQuery(elem);
-
+    var grid = $(elem);
     grid.jqGrid({
         caption: "Search for candidate proteins",
         url: url,
@@ -460,7 +448,7 @@ function searchableGrid(url, elem, sessionId, expStates) {
             "Sig HM",
             "Sig ML"
         ],
-        colModel: [ 
+        colModel: [
             { name: "grp_id", index: "grp_id", width: 60, sorttype: "int", align: "center", formatter: grpIdFormat, formatoptions: { sessionId: sessionId }, searchrule: { minValue: 1 }, searchoptions: { sopt: ['eq', 'ne'] } },
             { name: "grp_size", index: "grp_size", width: 60, sorttype: "int", align: "center", formatter: "number", formatoptions: { decimalPlaces: 0 }, searchrule: { minValue: 1 }, searchoptions: { sopt: ['lt', 'le', 'gt', 'ge'] } },
             { name: "exp_name", index: "exp_name", width: 80, sorttype: "String", align: "center", searchoptions: { sopt: ['cn', 'nc', 'eq', 'ne', 'bw', 'bn'] } },
@@ -608,7 +596,7 @@ function tabulateScatterplotData(elem, json, sessionId) {
             "Sig1",
             "Sig2"
         ],
-        colModel: [ 
+        colModel: [
             { name: "grp_id", index: "grp_id", width: 60, sorttype: "int", align: "center", formatter: grpIdFormat, formatoptions: { sessionId: sessionId }, searchrule: { minValue: 1 }, searchoptions: { sopt: ['eq', 'ne'] } },
             { name: "grp_size", index: "grp_size", width: 60, sorttype: "int", align: "center", formatter: "number", formatoptions: { decimalPlaces: 0 }, searchrule: { minValue: 1 }, searchoptions: { sopt: ['lt', 'le', 'gt', 'ge'] } },
             { name: "prot_accs", index: "prot_accs", width: 140, sorttype: "String", align: "left", formatter: protAccFormat, searchoptions: { sopt: ['cn', 'nc', 'eq', 'ne', 'bw', 'bn'] } },
@@ -714,9 +702,8 @@ function getURL(path, qpar, qkey, qval) {
 
     // store query parameters as key-value pairs
     for (qkey in qpar) {
-        qpars.push(qkey + '=' + encodeURIComponent(qpar[qkey])); // encode special chars 
+        qpars.push(qkey + '=' + encodeURIComponent(qpar[qkey])); // encode special chars
     }
 
     return path + '?' + qpars.join('&amp;');
 }
-

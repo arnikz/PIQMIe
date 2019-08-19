@@ -6,7 +6,7 @@
   "dependencies": {
     "bootstrap": "^4.3.1",
     "d3": "^5.9.7",
-    "jqgrid": "^4.6.4",
+    "jqGrid": "^5.3.2",
     "jquery": "^3.4.1",
     "jquery-form": "^4.2.2",
     "jquery-ui": "^1.12.1",
