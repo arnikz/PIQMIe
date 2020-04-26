@@ -72,7 +72,15 @@ function tabulate(json, elem) {
 function drawChart(json, elem) {
     var xlab, ylab, attr;
 
-    if (elem.match(/statgrp/)) {
+    if (elem.match(/statpep/)) {
+      attr = "exp_name";
+      xlab = "Experiment";
+      ylab = "Number of peptides";
+    } else if (elem.match(/statprot/)) {
+        attr = "db";
+        xlab = "Database/section";
+        ylab = "Number of proteins";
+    } else if (elem.match(/statgrp/)) {
         attr = "exp_name";
         xlab = "Experiment";
         ylab = "Number of protein groups";
@@ -80,23 +88,17 @@ function drawChart(json, elem) {
         attr = "exp_name";
         xlab = "Experiment";
         ylab = "Number of regulated protein groups FC\u22651.5 [P<.05]";
-    } else if (elem.match(/statprot/)) {
-        attr = "db";
-        xlab = "Database/section";
-        ylab = "Number of proteins";
-    } else if (elem.match(/statpep/)) {
-        attr = "exp_name";
-        xlab = "Experiment";
-        ylab = "Number of peptides";
     }
 
-    var attrNames = d3.keys(json[0]).filter(function(key) { return key !== attr; });
+    var attrNames = d3.keys(json[0]).filter(function(key) {
+        return key !== attr;
+    });
     var categories = json.map(function(d) {
         var val = (elem.match(/statprot/) != null) ? d.db : d.exp_name;
         return val;
     });
 
-    json.forEach(function(d) {// transform JSON data
+    json.forEach(function(d) {  // transform JSON data
         d.values = attrNames.map(function(name) {
             kv = { name: name, value: +d[name] };
             delete d[name];
@@ -120,16 +122,13 @@ function drawChart(json, elem) {
     var x0 = d3.scaleBand()
         .domain(categories)
         .rangeRound([0, width], .1);
-
     var x1 = d3.scaleBand()
         .domain(attrNames)
-        .rangeRound([0, x0.range()]);
-
+        .rangeRound([0, x0.bandwidth()]);
     var y = d3.scaleLinear()
         .domain([0, maxValue])
         .range([height, 0])
         .nice();
-
     var fmtype = (maxValue > 1000) ? ".2s" : "d";
     var xAxis = d3.axisBottom(x0);
     var yAxis = d3.axisLeft(y).tickFormat(d3.format(fmtype));
@@ -178,7 +177,6 @@ function drawChart(json, elem) {
         .enter().append("g")
         .attr("class", "g")
         .attr("transform", function(d) {
-            //alert(d + " " + elem.match(/statprot/));
             var val = (elem.match(/statprot/) != null) ? d.db : d.exp_name;
             return "translate(" + x0(val) + ",0)";
         });
@@ -189,10 +187,10 @@ function drawChart(json, elem) {
         .attr("x", function(d) { return x1(d.name); })
         .attr("y", function(d) { return y(d.value); })
         .attr("height", function(d) { return height - y(d.value); })
-        .attr("width", x1.rangeBand())
+        .attr("width", x1.bandwidth())
         .style("fill", function(d) { return color(d.name); })
         .append("svg:title").text(function(d) { return(d.value); });
-    return; // ** DEBUG **
+
     var legend = svg.selectAll(".legend")
         .data(attrNames)
         .enter().append("g")
