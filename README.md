@@ -8,29 +8,32 @@
 _PIQMIe_ is a web-based tool for reliable analysis and visualization of semi-quantitative mass spectrometry (MS)-based proteomics data ([Kuzniar and Kanaar, 2014](https://doi.org/10.1093/nar/gku478)). _PIQMIe_ readily integrates peptide and (non-redundant) protein identifications and quantitations, as obtained by the [MaxQuant/Andromeda](http://maxquant.org/) software ([Cox _et al._, 2008](https://doi.org/10.1038/nbt.1511), [2011](https://doi.org/10.1021/pr101065j)), with additional biological information from the [UniProtKB](http://www.uniprot.org/) database, and makes the linked data available in the form of a light-weight relational database ([SQLite](http://sqlite.org/)). Using the web interface, users are presented with a concise summary of their proteomics experiments in numerical and graphical forms, as well as with a searchable protein grid and interactive visualization tools to aid in the rapid assessment of the experiments and in the identification of proteins of interest. _PIQMIe_ provides data access via a web interface and programmatic RESTful API.
 
 ## Requirements
-
-Python modules:
-
-- cherrypy (>=3.2.2)
-- genshi (>=0.7)
-- sqlite3 (>=2.6.0)
-- cairosvg (>=1.0.6)
-- magic (>=0.4.3)
-
-Javascript libraries:
-
-- jQuery (>=1.11.0)
-- jqGrid (>=4.6.0)
-- D3.js (>=3.3.6)
+- Perl5
+- Python2
+  - cherrypy (>=3.2.2)
+  - genshi (>=0.7)
+  - sqlite3 (>=2.6.0)
+  - cairosvg (1.0.22)
+  - magic (>=0.4.3)
+- Node package manager (npm)
+  - bootrap (4.3.1)
+  - jqGrid (5.3.2)
+  - d3.js (5.9.7)
+  - jquery (3.4.1)
+  - jquery-form (4.2.2)
+  - jquery-ui (1.12.1)
+  - jquery-validation (1.19.1)
+  - popper.js (1.15.0)
 
 ## Installation
 
 ```
 git clone https://github.com/arnikz/PIQMIe.git
 cd PIQMIe
-virtualenv .venv
+virtualenv .venv --python=python2
 source .venv/bin/activate
 pip install -r requirements.txt
+npm install
 ```
 
 Extract sample data on human bone development and mineralization ([Alves _et al._, 2013](https://doi.org/10.1074/mcp.M112.024927)).
@@ -58,7 +61,7 @@ log.access_file = "access.log"  # in prod: /var/log/piqmie/access.log
 Start up the web server.
 
 ```
-cd <APP_BASE_DIR>
+cd ../  # <APP_BASE_DIR>
 cherryd -i PIQMIe -c PIQMIe/config.ini # in prod: sudo ...
 ```
 
