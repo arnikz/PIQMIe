@@ -69,16 +69,15 @@
               var query_str = $(this).attr('value');
               var url = '../rest/' + session_id + '/' + query_str;
               var throbber = $('#' + query_str + ' .throbber');
-
               // add content depending on the tab pane
               if (query_str == 'grp') {
                   var grid_sel = '#searchgrid'; // grid selector
                   searchableGrid(url, grid_sel, session_id, exp_states);
               } else { // 'statpep', 'statprot' or 'statgrp' selected
-                  var table_sel = '#' + query_str + ' .sumtable'; // table selector
+                  var tab_sel = '#' + query_str + ' .sumtable'; // table selector
                   var chart_sel = '#' + query_str + ' .barchart'; // chart selector
                   d3.json(url).then(function(data) {  // fetch data in JSON
-                      tabulate(data, table_sel);      // tabulate data
+                      tabulate(data, tab_sel);        // tabulate data
                       drawChart(data, chart_sel);     // plot barchart
                   });
               }
