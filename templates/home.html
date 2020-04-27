@@ -23,7 +23,6 @@
   <script type="text/javascript" src="node_modules/jquery/dist/jquery.min.js" charset="utf-8"></script>
   <script type="text/javascript" src="node_modules/jquery-form/dist/jquery.form.min.js" charset="utf-8"></script>
   <script type="text/javascript" src="node_modules/jquery-validation/dist/jquery.validate.min.js" charset="utf-8"></script>
-  <!--<script type="text/javascript" src="js/jquery.cookie.js" charset="utf-8"></script>-->
   <script type="text/javascript" src="node_modules/jquery-validation/dist/additional-methods.min.js" charset="utf-8"></script>
   <script type="text/javascript" src="node_modules/bootstrap/dist/js/bootstrap.min.js" charset="utf-8"></script>
   <script type="text/javascript" charset="utf-8">
@@ -206,7 +205,7 @@
     <!-- Tab panes -->
     <div class="tab-content">
       <div class="tab-pane" id="data" role="tabpanel" aria-labelledby="data-tab">
-        <br />
+        <hr />
         Here you find the <a href="download/a000000000000000000000000000000000000001/sampledata.tar.bz2">sample data</a> used as example input for the <i>PIQMIe</i> service, and the pre-computed <a href="results/a000000000000000000000000000000000000001"
           target="_blank">results</a> including the <a href="download/a000000000000000000000000000000000000001/duplex_SILAC_hMSC.sqlite">database</a> obtained by executing this service. The data set was described in the published study on bone
         formation by <a href="https://doi.org/10.1074/mcp.M112.024927" target="_blank">Alves <i>et al.</i> (2013)</a>. The raw MS data were made available by the authors and then re-analyzed using the <a href="http://maxquant.org" target="_blank">MaxQuant</a>
@@ -246,6 +245,7 @@
       </div><!-- sample data -->
 
       <div class="tab-pane" id="help" role="tabpanel" aria-labelledby="help-tab">
+        <hr />
         <h5><a href="#">Contents</a></h5>
         <ul>
           <li><a href="#section1">Service description</a></li>
@@ -255,7 +255,6 @@
           <li><a href="#section5">Results</a></li>
           <li><a href="#section6">Data access and privacy</a></li>
         </ul>
-        <hr />
 
         <h5><a href="#" id="section1">Service description</a></h5>
         <i>PIQMIe</i> (<b>P</b>roteomics <b>I</b>dentifications &amp; <b>Q</b>uantitations Data <b>M</b>anagement &amp; <b>I</b>ntegration Servic<b>e</b>) is a web-based tool that aids in the data management, analysis and visualization of
@@ -623,62 +622,60 @@
       </div><!-- help page -->
 
       <div class="tab-pane active" id="home" role="tabpanel" aria-labelledby="home-tab">
-        <br />
-        <font size="3"><b>P</b>roteomics <b>I</b>dentifications &amp; <b>Q</b>uantitations Data <b>M</b>anagement &amp; <b>I</b>ntegration Servic<b>e</b></font>
-        <form id="uploadForm" action="upload" method="post" enctype="multipart/form-data">
-          <fieldset class="col-md-6">
-            <div class="well">
-              <div class="form-group">
-                <label class="control-label" for="dts_name">Description:</label>
-                <div class="input-group">
-                  <span class="input-group-addon"></span>
-                  <input class="form-control" id="dts_name" name="dts_name" placeholder="duplex SILAC on human mesenchymal stem cells" type="text" />
-                </div><!-- .input-group -->
-                <span class="help-block">Briefly describe your input data set.</span>
-              </div><!-- .form-group -->
+        <hr />
+        <div class="h6"><b>P</b>roteomics <b>I</b>dentifications &amp; <b>Q</b>uantitations Data <b>M</b>anagement &amp; <b>I</b>ntegration Servic<b>e</b></div>
+        <div class="jumbotron col-7">
+          <form id="uploadForm" action="upload" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+              <label class="control-label" for="dts_name">Description:</label>
+              <div class="input-group">
+                <span class="input-group-addon"></span>
+                <input class="form-control" id="dts_name" name="dts_name" placeholder="duplex SILAC on human mesenchymal stem cells" type="text" />
+              </div><!-- .input-group -->
+              <div class="text-muted">Briefly describe your input data set.</div>
+            </div><!-- .form-group -->
 
-              <div class="form-group">
-                <label class="control-label" for="pep_file">Peptide IDs/quantifications:</label>
-                <div class="input-group">
-                  <input id="pep_file" name="pep_file" type="file" />
-                </div><!-- .input-group -->
-                <span class="help-block">Select the MaxQuant <i>evidence.txt</i> file (max. size $max_pepfile_size MB).</span>
-              </div><!-- .form-group -->
+            <div class="form-group">
+              <label class="control-label" for="pep_file">Peptide IDs/quant:</label>
+              <div class="input-group">
+                <input id="pep_file" name="pep_file" type="file" />
+              </div><!-- .input-group -->
+              <div class="text-muted">Select the MaxQuant <i>evidence.txt</i> file (max. size $max_pepfile_size MB).</div>
+            </div><!-- .form-group -->
 
-              <div class="form-group">
-                <label class="control-label" for="prot_file">Protein IDs/quantifications:</label>
-                <div class="input-group">
-                  <input id="prot_file" name="prot_file" type="file" />
-                </div><!-- .input-group -->
-                <span class="help-block">Select the MaxQuant <i>proteinGroups.txt</i> file (max. size $max_protfile_size MB).</span>
-              </div><!-- .form-group -->
+            <div class="form-group">
+              <label class="control-label" for="prot_file">Protein IDs/quant:</label>
+              <div class="input-group">
+                <input id="prot_file" name="prot_file" type="file" />
+              </div><!-- .input-group -->
+              <div class="text-muted">Select the MaxQuant <i>proteinGroups.txt</i> file (max. size $max_protfile_size MB).</div>
+            </div><!-- .form-group -->
 
-              <div class="form-group">
-                <label class="control-label" for="fasta_file">Protein sequences:</label>
-                <div class="input-group">
-                  <input id="fasta_file" name="fasta_file" type="file" />
-                </div><!-- .input-group -->
-                <span class="help-block">Select the same FASTA sequence library from the <a href="http://www.uniprot.org" target="_blank" title="UniProtKB">UniProtKB</a> database as used for the MaxQuant/Andromeda search (max. size $max_fasta_size
-                  MB). The latest reference proteomes can be found <a href="ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/reference_proteomes/" target="_blank">here</a>.</span>
-                <span class="label-warning"><b>Important:</b> The sequence library must contain exclusively <a href="http://www.uniprot.org/help/fasta-headers" target="_blank">UniProtKB headers</a>.
-                  MaxQuant result files obtained by Andromeda searches against a FASTA library from the discontinued IPI database are not supported!!!</span>
-              </div><!-- .form-group -->
+            <div class="form-group">
+              <label class="control-label" for="fasta_file">Protein sequences:</label>
+              <div class="input-group">
+                <input id="fasta_file" name="fasta_file" type="file" />
+              </div><!-- .input-group -->
+              <div class="text-muted">Select the same FASTA sequence library from the <a href="http://www.uniprot.org" target="_blank" title="UniProtKB">UniProtKB</a> database as used for the MaxQuant/Andromeda search (max. size $max_fasta_size
+                MB). The latest reference proteomes can be found <a href="ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/reference_proteomes/" target="_blank">here</a>.</div>
+              <div class="text-danger">The sequence library must contain exclusively <a href="http://www.uniprot.org/help/fasta-headers" target="_blank">UniProtKB headers</a>.
+                MaxQuant result files obtained by Andromeda searches against a FASTA library from the discontinued IPI database are not supported!</div>
+            </div><!-- .form-group -->
 
-              <div class="form-group">
-                <label class="control-label" for="progress">Job status:&nbsp;</label>
-                <span id="results"></span>
-                <div class="progress" title="Display the progress of data upload and processing.">
-                  <div class="progress-bar" style="width: 0%;"></div>
-                </div>
-
-                <div class="text-center">
-                  <button id="submit" type="submit" class="btn btn-primary">Submit</button>
-                  <button id="reset" type="reset" class="btn btn-danger">Reset</button>
-                </div>
-              </div><!-- .form-group -->
-            </div><!-- .well -->
-          </fieldset>
-        </form>
+            <div class="form-group">
+              <label class="control-label" for="progress">Job status:&nbsp;</label>
+              <span id="results"></span>
+              <div class="progress" title="Display the progress of data upload and processing.">
+                <div class="progress-bar" style="width: 0%;"></div>
+              </div>
+              <br />
+              <div class="text-center">
+                <button id="submit" type="submit" class="btn btn-primary">Submit</button>
+                <button id="reset" type="reset" class="btn btn-danger">Reset</button>
+              </div>
+            </div><!-- .form-group -->
+          </form>
+        </div>
       </div><!-- .tab-pane -->
       <div class="tab-pane" id="news" role="tabpanel" aria-labelledby="news-tab">
         <!--<h5><i>dd-mm-yy</i></h5>

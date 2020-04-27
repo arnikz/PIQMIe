@@ -137,111 +137,121 @@
       <div class="tab-content">
         <div class="tab-pane" id="home" role="tabpanel" aria-labelledby="home-tab" />
         <div class="tab-pane active" id="download" role="tabpanel" aria-labelledby="download-tab">
-          <legend>Download proteomics database</legend>
-          <div class="well">
+          <hr />
+          <div class="h5">Download proteomics database</div>
+          <div>
             <p>Click <a href="../download/$session_id/${db_file}">here</a> to save your data in the form of a <a href="http://www.sqlite.org">SQLite</a> database (version 3.x).</p>
             <p>To query your database(s) locally, you could use tools with graphical user interface (GUI) such as <a href="https://code.google.com/p/sqlite-manager/" target="_blank">SQLite Manager</a> Firefox extension (add-on), <a href="http://sqliteman.com" target="_blank">Sqliteman</a> stand-alone software, <a href="http://www.sqlite.org/" target="_blank">sqlite3</a> command-line interface (CLI), or any programming/scripting language with a database access module (SQL interface).</p>
           </div>
         </div><!-- download database -->
         <div class="tab-pane" id="statpep" role="tabpanel" aria-labelledby="statpep-tab">
-          <legend>Summary of peptide identifications &amp; quantitations</legend>
+          <hr />
+          <div class="h5">Summary of peptide identifications &amp; quantitations</div>
           <div style="overflow: scroll;" class="well">
-            <div class="help-block">Note: Mouse over the abbreviations in the column headers or figure legends to show their full descriptions.</div>
             <img class="throbber" src="../img/throbber.gif" alt="Loading..." />
             <div class="sumtable"></div>
           </div>
-          <div style="overflow: scroll;" class="well">
+          <div class="text-muted small">Mouse over the abbreviations in the column headers or figure legends to show their full descriptions.</div>
+          <div style="overflow: scroll;">
             <div class="barchart"></div>
-
+            <br />
             <!-- Buttons to save figures in SVG, PDF and PNG or show data in JSON -->
-            <div class="text-left"><b>Save as:</b>
-              <button class="btn btn-success" id="statpep.svg" value="">SVG</button>
-              <button class="btn btn-success" id="statpep.pdf" value="">PDF</button>
-              <button class="btn btn-success" id="statpep.png" value="">PNG</button>
-              <button class="btn btn-default" id="statpep.json" value="">JSON</button>
+            <div class="text-center">
+              <b>Save as:</b>
+              <button class="btn btn-primary" id="statpep.svg" value="">SVG</button>
+              <button class="btn btn-primary" id="statpep.pdf" value="">PDF</button>
+              <button class="btn btn-primary" id="statpep.png" value="">PNG</button>
+              <button class="btn btn-secondary" id="statpep.json" value="">JSON</button>
             </div>
           </div>
         </div><!-- peptides -->
 
         <div class="tab-pane" id="statprot" role="tabpanel" aria-labelledby="statprot-tab">
-          <legend>Summary of database-dependent protein identifications</legend>
-          <div style="overflow: scroll;" class="well">
-            <div class="help-block">Note: Mouse over the abbreviations in the column headers or figure legends to show their full descriptions.</div>
+          <hr />
+          <div class="h5">Summary of database-dependent protein identifications</div>
+          <div style="overflow: scroll;">
             <img class="throbber" src="../img/throbber.gif" alt="Loading..." />
             <div class="sumtable"></div>
           </div>
+          <div class="text-muted small">Mouse over the abbreviations in the column headers or figure legends to show their full descriptions.</div>
           <div style="overflow: scroll;" class="well">
             <div class="barchart"></div>
 
             <!-- Buttons to save figures in SVG, PDF and PNG or show data in JSON -->
-            <div class="text-left"><b>Save as:</b>
-              <button class="btn btn-success" id="statprot.svg" value="">SVG</button>
-              <button class="btn btn-success" id="statprot.pdf" value="">PDF</button>
-              <button class="btn btn-success" id="statprot.png" value="">PNG</button>
-              <button class="btn btn-default" id="statprot.json" value="">JSON</button>
+            <div class="text-center">
+              <b>Save as:</b>
+              <button class="btn btn-primary" id="statpep.svg" value="">SVG</button>
+              <button class="btn btn-primary" id="statpep.pdf" value="">PDF</button>
+              <button class="btn btn-primary" id="statpep.png" value="">PNG</button>
+              <button class="btn btn-secondary" id="statpep.json" value="">JSON</button>
             </div>
           </div>
         </div><!-- proteins -->
 
         <div class="tab-pane" id="statgrp" role="tabpanel" aria-labelledby="statgrp-tab">
-          <legend>Summary of non-redundant protein identifications &amp; quantitations</legend>
-          <div style="overflow: scroll;" class="well">
-            <div class="help-block">Note: Mouse over the abbreviations in the column headers or figure legends to show their full descriptions.</div>
+          <hr />
+          <div class="h5">Summary of non-redundant protein identifications &amp; quantitations</div>
+          <div style="overflow: scroll;">
             <img class="throbber" src="../img/throbber.gif" alt="Loading..." />
             <div class="sumtable"></div>
-          </div><!-- .well -->
-          <div style="overflow: scroll;" class="well">
+          </div>
+          <div class="text-muted small">Mouse over the abbreviations in the column headers or figure legends to show their full descriptions.</div>
+          <div style="overflow: scroll;">
             <div class="barchart"></div>
 
             <!-- Buttons to save figures in SVG, PDF and PNG or show data in JSON -->
-            <div class="text-left"><b>Save as:</b>
-              <button class="btn btn-success" id="statgrp.svg" value="">SVG</button>
-              <button class="btn btn-success" id="statgrp.pdf" value="">PDF</button>
-              <button class="btn btn-success" id="statgrp.png" value="">PNG</button>
-              <button class="btn btn-default" id="statgrp.json" value="">JSON</button>
+            <div class="text-center">
+              <b>Save as:</b>
+              <button class="btn btn-primary" id="statpep.svg" value="">SVG</button>
+              <button class="btn btn-primary" id="statpep.pdf" value="">PDF</button>
+              <button class="btn btn-primary" id="statpep.png" value="">PNG</button>
+              <button class="btn btn-secondary" id="statpep.json" value="">JSON</button>
             </div>
           </div>
         </div><!-- protein groups -->
 
         <div class="tab-pane" id="statregrp" role="tabpanel" aria-labelledby="statregrp-tab">
-          <legend>Summary of potentially regulated non-redundant proteins</legend>
-          <div style="overflow: scroll;" class="well">
-            <div class="help-block">Note: Mouse over the abbreviations in the column headers or figure legends to show their full descriptions.</div>
+          <hr />
+          <div class="h5">Summary of potentially regulated non-redundant proteins</div>
+          <div style="overflow: scroll;">
             <img class="throbber" src="../img/throbber.gif" alt="Loading..." />
             <div class="sumtable"></div>
-          </div><!-- .well -->
+          </div>
+          <div class="text-muted small">Mouse over the abbreviations in the column headers or figure legends to show their full descriptions.</div>
           <div style="overflow: scroll;" class="well">
             <div class="barchart"></div>
 
             <!-- Buttons to save figures in SVG, PDF and PNG or show data in JSON -->
-            <div class="text-left"><b>Save as:</b>
-              <button class="btn btn-success" id="statregrp.svg" value="">SVG</button>
-              <button class="btn btn-success" id="statregrp.pdf" value="">PDF</button>
-              <button class="btn btn-success" id="statregrp.png" value="">PNG</button>
-              <button class="btn btn-default" id="statregrp.json" value="">JSON</button>
+            <div class="text-center">
+              <b>Save as:</b>
+              <button class="btn btn-primary" id="statpep.svg" value="">SVG</button>
+              <button class="btn btn-primary" id="statpep.pdf" value="">PDF</button>
+              <button class="btn btn-primary" id="statpep.png" value="">PNG</button>
+              <button class="btn btn-secondary" id="statpep.json" value="">JSON</button>
             </div>
           </div>
         </div><!-- regulated protein groups -->
 
 
         <div class="tab-pane" id="grp" role="tabpanel" aria-labelledby="grp-tab">
-          <legend />
+          <hr />
           <!-- Search Grid -->
-          <div style="overflow: scroll;" class="well">
-            <div class="help-block">Note: Scroll up, down, left or right to show more rows or columns. Click on a groupID to open the <i>Peptide coverage map.</i></div>
+          <div class="help-muted small">Scroll up, down, left or right to show more rows or columns. Click on a groupID to open the <i>Peptide coverage map.</i></div>
+          <div style="overflow: scroll;">
             <table id="searchgrid"><tr><td /></tr></table>
             <div id="pager"></div>
-            <br />
 
             <!-- Button to show data in JSON -->
-            <div class="text-left"><b>Save as:</b>
-              <a href="../rest/$session_id/grp" target="_blank"><button class="btn btn-default" value="">JSON</button></a>
+            <div class="text-center">
+              <b>Save as:</b>
+              <a href="../rest/$session_id/grp" target="_blank"><button class="btn btn-secondary" value="">JSON</button></a>
             </div>
           </div>
         </div><!-- Search Grid -->
 
         <div class="tab-pane fade" id="cmpquant" role="tabpanel" aria-labelledby="cmpquant-tab">
-          <legend>Scatterplot of protein quantitations</legend>
+          <hr />
+          <div class="h5">Scatterplot of protein quantitations</div>
           <iframe src="../scatterplot/$session_id" scrolling="no" seamless=""></iframe>
         </div><!-- scatterplot -->
       </div><!-- .tab-content -->

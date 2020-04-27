@@ -9,9 +9,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="" />
     <meta name="author" content="" />
- 
+
     <title>PIQMIe: Scatterplot</title>
-  
+
     <style type="text/css">
 
       a.link:hover {
@@ -175,7 +175,7 @@
                   var row = selection[0].row;
                   var grp_id = data.getValue(row, 3);
                   var url = '../pepmap/' + session_id + '?grp_id=' + grp_id;
-                  
+
                   // TODO: couple selected protein group(s) in the scatterplot to the search grid
                   $("tr td a:contains('" + grp_id + "')").parents('tr').addClass('ui-state-highlight');
 
@@ -213,7 +213,7 @@
               var qkey = this.id;
               var qval = $(this).val();
               url = getURL(path, qpar, qkey, qval);
-          }); 
+          });
 
           // draw scatterplot and tabulate data
           $('#btn_show').click(function(evt) {
@@ -244,7 +244,7 @@
       <input type="hidden" id="data" name="data" value="" />
     </form>
 
-    <div class="well" style="width: 800px">
+    <div class="jumbotron small">
       <div>
         <label for="exp1">Experiment 1:&nbsp;</label>
         <select class="exp1" py:if="exp_names">
@@ -254,7 +254,7 @@
         <label for="ratio1">norm. protein ratio:&nbsp;</label>
         <select class="ratio1" py:if="ratio_types">
           <option py:for="ratio_type in ratio_types" value="${ratio_type}">${ratio_type}</option>
-        </select>&nbsp;on horizontal x-axis  
+        </select>&nbsp;on horizontal x-axis
         <button style="float: right;" class="btn btn-primary" id="btn_show">Show</button>
       </div>
 
@@ -282,21 +282,22 @@
         <output id="pvalue" name="pvalue" for="cfpvalue">1</output>
       </div>
     </div><!-- .well -->
-    
-    <div class="well text-center" style="width: 800px; height: 900px;">
+
+    <div>
       <div id="header"></div>
-      <div class="help-block">Note: Select a data point by left mouse click to show its tooltip. Right-click on the point to open the <i>Peptide coverage map.</i> Use the scroll wheel to zoom in and out of the plot. Change focus by moving the mouse while holding its left button.</div>
+      <div class="text-muted small">Select a data point by left mouse click to show its tooltip. Right-click on the point to open the <i>Peptide coverage map.</i> Use the scroll wheel to zoom in and out of the plot. Change focus by moving the mouse while holding its left button.</div>
 
       <img class="throbber" src="data:image/gif;base64,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" alt="Loading..." />
       <div id="cmpquant" style="width: 760px; height: 760px;" />
+    </div>
 
-      <!-- Buttons to save figures in SVG, PDF and PNG or show data in JSON -->
-      <div class="text-left"><b>Save as:</b>
-        <button class="btn btn-success" id="cmpquant.svg" value="">SVG</button>
-        <button class="btn btn-success" id="cmpquant.pdf" value="">PDF</button>
-        <button class="btn btn-success" id="cmpquant.png" value="">PNG</button>
-        <button class="btn btn-default" id="cmpquant.json" value="">JSON</button>
-      </div>
+    <!-- Buttons to save figures in SVG, PDF and PNG or show data in JSON -->
+    <div class="text-center">
+      <b>Save as:</b>
+      <button class="btn btn-primary" id="statpep.svg" value="">SVG</button>
+      <button class="btn btn-primary" id="statpep.pdf" value="">PDF</button>
+      <button class="btn btn-primary" id="statpep.png" value="">PNG</button>
+      <button class="btn btn-secondary" id="statpep.json" value="">JSON</button>
     </div>
 
     <div>
@@ -305,4 +306,3 @@
     </div><!-- tabulate scatterplot data -->
   </body>
 </html>
-
