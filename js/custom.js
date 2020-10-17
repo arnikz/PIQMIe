@@ -31,7 +31,7 @@ var acronyms = {
    'n_pgrp_conts' : 'number of non-redundant proteins detected as contaminants',
 
    // Regulated proteins (groups)
-   'n_pgrp_ids' : 'union of differentially regulated proteins identified in all conditions, filtered for decoys and contaminants',
+   'n_pgrp_ids_all' : 'union of differentially regulated proteins identified in all conditions, filtered for decoys and contaminants',
    'n_pgrp_ids_H/L+L/H' : 'number of up- AND down-regulated proteins identified in both conditions H/L and L/H',
    'n_pgrp_ids_H/L' : 'number of up- OR down-regulated proteins identified in the H/L condition',
    'n_pgrp_ids_L/H' : 'number of up- OR down-regulated proteins identified in the L/H condition',
