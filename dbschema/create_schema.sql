@@ -465,7 +465,7 @@ CREATE VIEW V_REG_PGROUP_STAT AS
 -- FC >= 1.5 and P-value < .05; the latter cutoff used only if P-values are provided
 SELECT
     exp_name,
-    COUNT(CASE WHEN ((fc_HL >= 1.5 AND IFNULL(sig_ratio_HL, 0) < 0.05) OR (fc_HM >= 1.5 AND IFNULL(sig_ratio_HM, 0) < 0.05) OR (fc_ML >= 2 AND IFNULL(sig_ratio_ML, 0) < 0.05)) THEN grp_id ELSE NULL END) AS n_pgrp_ids_all,
+    COUNT(CASE WHEN ((fc_HL >= 1.5 AND IFNULL(sig_ratio_HL, 0) < 0.05) OR (fc_HM >= 1.5 AND IFNULL(sig_ratio_HM, 0) < 0.05) OR (fc_ML >= 1.5 AND IFNULL(sig_ratio_ML, 0) < 0.05)) THEN grp_id ELSE NULL END) AS n_pgrp_ids_all,
     COUNT(CASE WHEN fc_HL >= 1.5 AND IFNULL(sig_ratio_HL, 0) < 0.05 THEN grp_id ELSE NULL END) AS 'n_pgrp_ids_H/L+L/H',
     COUNT(CASE WHEN norm_ratio_HL >= 1.5 AND IFNULL(sig_ratio_HL, 0) < 0.05 THEN grp_id ELSE NULL END) AS 'n_pgrp_ids_H/L',
     COUNT(CASE WHEN norm_ratio_LH >= 1.5 AND IFNULL(sig_ratio_HL, 0) < 0.05 THEN grp_id ELSE NULL END) AS 'n_pgrp_ids_L/H',
