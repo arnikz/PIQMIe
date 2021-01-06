@@ -1,5 +1,5 @@
 cherrypy>=3.2.2
 genshi>=0.7
-cairosvg==1.0.22
+cairosvg==2.5.1
 python-magic>=0.4.3
 
