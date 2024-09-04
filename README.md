@@ -66,6 +66,14 @@ cd ../  # <APP_BASE_DIR>
 cherryd -i PIQMIe -c PIQMIe/config.ini # in prod: sudo ...
 ```
 
+### Docker deployment
+
+```
+cd PIQMIe
+docker build -t piqmie .
+docker run -d -p 8080:8080 piqmie
+```
+
 ## Usage
 
 To view the sample data on your local PIQMIe instance, follow _Sample Data_ tab and click on [results](http://localhost:8080/results/a000000000000000000000000000000000000001).
