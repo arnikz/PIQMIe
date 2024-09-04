@@ -1,6 +1,8 @@
 # PIQMIe
 
 [![DOI](https://zenodo.org/badge/42406525.svg)](https://zenodo.org/badge/latestdoi/42406525)
+
+[![Published in NAR](https://img.shields.io/badge/published%20in-NAR-blue.svg)](https://doi.org/10.1093/nar/gku478)
 [![CI](https://github.com/arnikz/PIQMIe/actions/workflows/ci.yaml/badge.svg?branch=dev)](https://github.com/arnikz/PIQMIe/actions/workflows/ci.yaml)
 
 ## Description
