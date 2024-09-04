@@ -6,7 +6,7 @@
 
 ## Description
 
-_PIQMIe_ is a web-based tool for reliable analysis and visualization of semi-quantitative mass spectrometry (MS)-based proteomics data ([Kuzniar and Kanaar, 2014](https://doi.org/10.1093/nar/gku478)). _PIQMIe_ readily integrates peptide and (non-redundant) protein identifications and quantitations, as obtained by the [MaxQuant/Andromeda](http://maxquant.org/) software ([Cox _et al._, 2008](https://doi.org/10.1038/nbt.1511), [2011](https://doi.org/10.1021/pr101065j)), with additional biological information from the [UniProtKB](http://www.uniprot.org/) database, and makes the linked data available in the form of a light-weight relational database ([SQLite](http://sqlite.org/)). Using the web interface, users are presented with a concise summary of their proteomics experiments in numerical and graphical forms, as well as with a searchable protein grid and interactive visualization tools to aid in the rapid assessment of the experiments and in the identification of proteins of interest. _PIQMIe_ provides data access via a web interface and programmatic RESTful API.
+_PIQMIe_ is a web-based tool for reliable analysis and visualization of semi-quantitative mass spectrometry (MS)-based proteomics data. _PIQMIe_ readily integrates peptide and (non-redundant) protein identifications and quantitations, as obtained by the [MaxQuant/Andromeda](http://maxquant.org/) software ([Cox _et al._, 2008](https://doi.org/10.1038/nbt.1511), [2011](https://doi.org/10.1021/pr101065j)), with additional biological information from the [UniProtKB](http://www.uniprot.org/) database, and makes the linked data available in the form of a light-weight relational database ([SQLite](http://sqlite.org/)). Using the web interface, users are presented with a concise summary of their proteomics experiments in numerical and graphical forms, as well as with a searchable protein grid and interactive visualization tools to aid in the rapid assessment of the experiments and in the identification of proteins of interest. _PIQMIe_ provides data access via a web interface and programmatic RESTful API.
 
 ## Requirements
 - Perl5
@@ -72,9 +72,3 @@ To view the sample data on your local PIQMIe instance, follow _Sample Data_ tab 
 
 Alternatively, upload your own data files, i.e., MaxQuant peptide (`evidence.txt`) and protein (`proteinGroups.txt`) lists including the sequence library in FASTA (`.fa|fasta`), to the web server and click on the _Submit_ button to process the input files. After processing, click on the generated link to view the results. Note: For each session, a new (sub)directory `<DATA_DIR>/<jobID>` including I/O files will be created.
 
-
-## How to cite
-
-Kuzniar, A. and Kanaar, R. (2014) PIQMIe: a web server for semi-quantitative proteomics data management and analysis, _Nucleic Acids Research_, 42, W100–W106\. doi:[10.1093/nar/gku478](https://doi.org/10.1093/nar/gku478)
-
-Kuzniar, A. PIQMIe version 1.0\. doi:[10.5281/zenodo.34090](https://doi.org/10.5281/zenodo.34090)
