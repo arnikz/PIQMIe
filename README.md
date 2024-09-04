@@ -1,7 +1,7 @@
 # PIQMIe
 
-[![Build Status](https://travis-ci.com/arnikz/PIQMIe.svg?branch=dev)](https://travis-ci.com/arnikz/PIQMIe)
 [![DOI](https://zenodo.org/badge/42406525.svg)](https://zenodo.org/badge/latestdoi/42406525)
+[![CI](https://github.com/arnikz/PIQMIe/actions/workflows/ci.yaml/badge.svg?branch=dev)](https://github.com/arnikz/PIQMIe/actions/workflows/ci.yaml)
 
 ## Description
 
