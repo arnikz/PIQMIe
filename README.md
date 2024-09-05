@@ -72,6 +72,7 @@ cherryd -i PIQMIe -c PIQMIe/config.ini # in prod: sudo ...
 cd PIQMIe
 docker build -t piqmie .
 docker run -d -p 8080:8080 piqmie
+docker exec -it [CONTAINER ID] sh
 ```
 
 ## Usage
