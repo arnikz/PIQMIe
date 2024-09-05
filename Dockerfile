@@ -5,7 +5,7 @@ LABEL email="arnold.kuzniar@gmail.com"
 LABEL orcid="0000-0003-1711-7961"
 LABEL version="0.0.1"
 
-RUN apk add python2 py2-pip py2-setuptools libmagic py2-cairo curl sqlite jq
+RUN apk add perl python2 py2-pip py2-setuptools libmagic py2-cairo curl sqlite jq
 
 WORKDIR /tmp
 COPY . PIQMIe
