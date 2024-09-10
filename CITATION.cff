@@ -20,7 +20,7 @@ keywords:
   - "web service"
 license: Apache-2.0
 message: "If you use this software, please cite it using these metadata"
-repository-code: "https://github.com/GooglingTheCancerGenome/sv-callers"
+repository-code: "https://github.com/arnikz/PIQMIe"
 title: PIQMIe
 version: "1.1.0"
 
