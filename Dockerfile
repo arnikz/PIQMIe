@@ -3,7 +3,7 @@ LABEL description="PIQMIe: Proteomics Identifications & Quantitations Data Manag
 LABEL maintainer="Arnold Kuzniar"
 LABEL email="arnold.kuzniar@gmail.com"
 LABEL orcid="0000-0003-1711-7961"
-LABEL version="0.0.1"
+LABEL version="1.1.0"
 
 RUN apk add perl python2 py2-pip py2-setuptools libmagic py2-cairo curl sqlite jq
 
