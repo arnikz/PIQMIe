@@ -8,8 +8,7 @@
     "d3": "^4.0.0",
     "jqGrid": "^5.3.2",
     "jquery": "^1.11",
-    "jquery-ui": "^1.14",
-    "popper.js": "^1.15.0"
+    "jquery-ui": "^1.14"
   },
   "devDependencies": {},
   "scripts": {
