@@ -1,0 +1,24 @@
+{
+  "creators": [
+    {
+      "affiliation": "Milky Way",
+      "name": "Kuzniar, Arnold",
+      "orcid": "0000-0003-1711-7961"
+    }
+  ],
+  "keywords": [
+    "bioinformatics",
+    "proteomics",
+    "mass spectrometry",
+    "SILAC",
+    "data analysis",
+    "MaxQuant",
+    "web service"
+  ],
+  "license": {
+    "id": "Apache-2.0"
+  },
+  "publication_date": "2024-09-10",
+  "title": "PIQMIe",
+  "version": "1.1.0"
+}

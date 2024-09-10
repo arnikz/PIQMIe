@@ -1,0 +1,26 @@
+# YAML 1.2
+# Metadata for citation of this software according to the CFF format (https://citation-file-format.github.io/)
+---
+authors:
+  -
+    affiliation: "Milky Way"
+    family-names: Kuzniar
+    given-names: Arnold
+    orcid: "https://orcid.org/0000-0003-1711-7961"
+cff-version: "1.0.3"
+date-released: 2024-09-10
+doi: 10.5281/zenodo.594144
+keywords:
+  - "bioinformatics"
+  - "proteomics"
+  - "mass spectrometry"
+  - "SILAC"
+  - "data analysis"
+  - "MaxQuant"
+  - "web service"
+license: Apache-2.0
+message: "If you use this software, please cite it using these metadata"
+repository-code: "https://github.com/GooglingTheCancerGenome/sv-callers"
+title: PIQMIe
+version: "1.1.0"
+
