@@ -1,16 +1,14 @@
 {
   "name": "PIQMIe",
   "version": "1.0.0",
-  "description": "[![Build Status](https://travis-ci.com/arnikz/PIQMIe.svg?branch=dev)](https://travis-ci.com/arnikz/PIQMIe) [![DOI](https://zenodo.org/badge/42406525.svg)](https://zenodo.org/badge/latestdoi/42406525)",
+  "description": "",
   "main": "index.js",
   "dependencies": {
-    "bootstrap": "^4.3.1",
-    "d3": "^5.9.7",
+    "bootstrap": "^3.0.0",
+    "d3": "^4.0.0",
     "jqGrid": "^5.3.2",
-    "jquery": "^3.4.1",
-    "jquery-form": "^4.2.2",
-    "jquery-ui": "^1.12.1",
-    "jquery-validation": "^1.19.1",
+    "jquery": "^1.11",
+    "jquery-ui": "^1.14",
     "popper.js": "^1.15.0"
   },
   "devDependencies": {},

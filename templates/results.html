@@ -6,12 +6,11 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="" />
-    <meta name="author" content="" />
-
+    <meta name="description" content="PIQMIe proteomics web service" />
+    <meta name="author" content="Arnold Kuzniar" />
     <title>PIQMIe: Results page</title>
-
     <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css" type="text/css" media="screen" />
+    <link rel="stylesheet" href="../node_modules/jquery-ui/dist/themes/redmond/jquery-ui.min.css" type="text/css" media="screen" />
     <link rel="stylesheet" href="../node_modules/jqGrid/css/ui.jqgrid.css" type="text/css" media="screen" />
     <style type="text/css">
 
@@ -56,7 +55,7 @@
     <script type="text/javascript" src="../node_modules/jqGrid/js/i18n/grid.locale-en.js" charset="utf-8"></script>
     <script type="text/javascript" src="../node_modules/jqGrid/js/jquery.jqGrid.min.js" charset="utf-8"></script>
     <script type="text/javascript" src="../node_modules/bootstrap/dist/js/bootstrap.min.js" charset="utf-8"></script>
-    <script type="text/javascript" src="../node_modules/d3/dist/d3.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="../node_modules/d3/build/d3.min.js" charset="utf-8"></script>
     <script type="text/javascript" src="../js/custom.js" charset="utf-8"></script>
     <script type="text/javascript">
     //<![CDATA[
@@ -76,7 +75,7 @@
               } else { // 'statpep', 'statprot' or 'statgrp' selected
                   var tab_sel = '#' + query_str + ' .sumtable'; // table selector
                   var chart_sel = '#' + query_str + ' .barchart'; // chart selector
-                  d3.json(url).then(function(data) {  // fetch data in JSON
+                  d3.json(url, function(data) {  // fetch data in JSON
                       tabulate(data, tab_sel);        // tabulate data
                       drawChart(data, chart_sel);     // plot barchart
                   });
@@ -152,9 +151,8 @@
             <div class="sumtable"></div>
           </div>
           <div class="text-muted small">Mouse over the abbreviations in the column headers or figure legends to show their full descriptions.</div>
-          <div style="overflow: scroll;">
+          <div style="overflow: scroll;" class="well">
             <div class="barchart"></div>
-            <br />
             <!-- Buttons to save figures in SVG, PDF and PNG or show data in JSON -->
             <div class="text-center">
               <b>Save as:</b>
@@ -169,14 +167,13 @@
         <div class="tab-pane" id="statprot" role="tabpanel" aria-labelledby="statprot-tab">
           <hr />
           <div class="h5">Summary of database-dependent protein identifications</div>
-          <div style="overflow: scroll;">
+          <div style="overflow: scroll;" class="well">
             <img class="throbber" src="../img/throbber.gif" alt="Loading..." />
             <div class="sumtable"></div>
           </div>
           <div class="text-muted small">Mouse over the abbreviations in the column headers or figure legends to show their full descriptions.</div>
           <div style="overflow: scroll;" class="well">
             <div class="barchart"></div>
-
             <!-- Buttons to save figures in SVG, PDF and PNG or show data in JSON -->
             <div class="text-center">
               <b>Save as:</b>
@@ -191,14 +188,13 @@
         <div class="tab-pane" id="statgrp" role="tabpanel" aria-labelledby="statgrp-tab">
           <hr />
           <div class="h5">Summary of non-redundant protein identifications &amp; quantitations</div>
-          <div style="overflow: scroll;">
+          <div style="overflow: scroll;" class="well">
             <img class="throbber" src="../img/throbber.gif" alt="Loading..." />
             <div class="sumtable"></div>
           </div>
           <div class="text-muted small">Mouse over the abbreviations in the column headers or figure legends to show their full descriptions.</div>
-          <div style="overflow: scroll;">
+          <div style="overflow: scroll;" class="well">
             <div class="barchart"></div>
-
             <!-- Buttons to save figures in SVG, PDF and PNG or show data in JSON -->
             <div class="text-center">
               <b>Save as:</b>
@@ -213,14 +209,13 @@
         <div class="tab-pane" id="statregrp" role="tabpanel" aria-labelledby="statregrp-tab">
           <hr />
           <div class="h5">Summary of potentially regulated non-redundant proteins</div>
-          <div style="overflow: scroll;">
+          <div style="overflow: scroll;" class="well">
             <img class="throbber" src="../img/throbber.gif" alt="Loading..." />
             <div class="sumtable"></div>
           </div>
           <div class="text-muted small">Mouse over the abbreviations in the column headers or figure legends to show their full descriptions.</div>
           <div style="overflow: scroll;" class="well">
             <div class="barchart"></div>
-
             <!-- Buttons to save figures in SVG, PDF and PNG or show data in JSON -->
             <div class="text-center">
               <b>Save as:</b>
@@ -236,11 +231,10 @@
         <div class="tab-pane" id="grp" role="tabpanel" aria-labelledby="grp-tab">
           <hr />
           <!-- Search Grid -->
-          <div class="help-muted small">Scroll up, down, left or right to show more rows or columns. Click on a groupID to open the <i>Peptide coverage map.</i></div>
-          <div style="overflow: scroll;">
+          <div style="overflow: scroll;" class="well">
+            <div>Scroll up, down, left or right to show more rows or columns. Click on a groupID to open the <i>Peptide coverage map.</i></div>
             <table id="searchgrid"><tr><td /></tr></table>
             <div id="pager"></div>
-
             <!-- Button to show data in JSON -->
             <div class="text-center">
               <b>Save as:</b>
@@ -252,7 +246,7 @@
         <div class="tab-pane fade" id="cmpquant" role="tabpanel" aria-labelledby="cmpquant-tab">
           <hr />
           <div class="h5">Scatterplot of protein quantitations</div>
-          <iframe src="../scatterplot/$session_id" scrolling="no" seamless=""></iframe>
+          <iframe src="../scatterplot/$session_id" style="width: 800px;"></iframe>
         </div><!-- scatterplot -->
       </div><!-- .tab-content -->
     </div><!-- .container -->

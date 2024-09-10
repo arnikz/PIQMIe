@@ -7,11 +7,9 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="" />
-    <meta name="author" content="" />
-
+    <meta name="description" content="PIQMIe proteomics web service" />
+    <meta name="author" content="Arnold Kuzniar" />
     <title>PIQMIe: Scatterplot</title>
-
     <style type="text/css">
 
       a.link:hover {
@@ -27,24 +25,22 @@
       }
 
     </style>
-
-    <link rel="stylesheet" href="../css/bootstrap.min.css" type="text/css" media="screen" />
-    <!-- jqGrid CSS stuff -->
-    <link rel="stylesheet" href="../css/ui-redmond/jquery-ui.min.css" type="text/css" media="screen" />
-    <link rel="stylesheet" href="../css/ui.jqgrid.css" type="text/css" media="screen" />
-
+    <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css" type="text/css" media="screen" />
+    <link rel="stylesheet" href="../node_modules/jquery-ui/dist/themes/redmond/jquery-ui.min.css" type="text/css" media="screen" />
+    <link rel="stylesheet" href="../node_modules/jqGrid/css/ui.jqgrid.css" type="text/css" media="screen" />    
   </head>
 
   <body>
     <!-- Load Google JSAPI -->
     <script type="text/javascript" src="https://www.google.com/jsapi" charset="utf-8"></script>
     <!-- Load local D3.js and jQuery -->
-    <script type="text/javascript" src="../js/d3.min.js" charset="utf-8"></script>
-    <script type="text/javascript" src="../js/jquery.min.js" charset="utf-8"></script>
-    <script type="text/javascript" src="../js/i18n/grid.locale-en.js" charset="utf-8"></script>
-    <script type="text/javascript" src="../js/jquery.jqGrid.min.js" charset="utf-8"></script>
-    <script type="text/javascript" src="../js/pearson-correlation.js" charset="utf-8"></script>
+    <script type="text/javascript" src="../node_modules/jquery/dist/jquery.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="../node_modules/jqGrid/js/i18n/grid.locale-en.js" charset="utf-8"></script>
+    <script type="text/javascript" src="../node_modules/jqGrid/js/jquery.jqGrid.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="../node_modules/bootstrap/dist/js/bootstrap.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="../node_modules/d3/build/d3.min.js" charset="utf-8"></script>
     <script type="text/javascript" src="../js/custom.js" charset="utf-8"></script>
+    <script type="text/javascript" src="../js/pearson-correlation.js" charset="utf-8"></script>
     <script type="text/javascript" charset="utf-8">
     //<![CDATA[
 
@@ -220,7 +216,7 @@
               btn_pressed = true;
               if (url !== prev_url) {
                   draw2Dscatter(url);
-                  $('#grid').GridUnload();
+                  //$('#grid').GridUnload();
                   prev_url = url;
               }
           });
@@ -244,7 +240,7 @@
       <input type="hidden" id="data" name="data" value="" />
     </form>
 
-    <div class="jumbotron small">
+    <div class="well">
       <div>
         <label for="exp1">Experiment 1:&nbsp;</label>
         <select class="exp1" py:if="exp_names">
@@ -283,12 +279,12 @@
       </div>
     </div><!-- .well -->
 
-    <div>
+    <div style="overflow: scroll;" class="well">
       <div id="header"></div>
       <div class="text-muted small">Select a data point by left mouse click to show its tooltip. Right-click on the point to open the <i>Peptide coverage map.</i> Use the scroll wheel to zoom in and out of the plot. Change focus by moving the mouse while holding its left button.</div>
 
       <img class="throbber" src="data:image/gif;base64,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" alt="Loading..." />
-      <div id="cmpquant" style="width: 760px; height: 760px;" />
+      <div id="cmpquant" style="width: 760px; height: 800px;" />
     </div>
 
     <!-- Buttons to save figures in SVG, PDF and PNG or show data in JSON -->
@@ -299,7 +295,7 @@
       <button class="btn btn-primary" id="statpep.png" value="">PNG</button>
       <button class="btn btn-secondary" id="statpep.json" value="">JSON</button>
     </div>
-
+    <br />
     <div>
       <table id="grid"><tr><td /></tr></table>
       <div id="pager"></div>

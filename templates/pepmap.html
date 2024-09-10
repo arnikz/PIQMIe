@@ -7,15 +7,17 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="" />
-    <meta name="author" content="" />
+    <meta name="description" content="PIQMIe proteomics web service" />
+    <meta name="author" content="Arnold Kuzniar" />
     <title>PIQMIe: Peptide coverage map</title>
-    <link rel="stylesheet" href="../css/bootstrap.min.css" type="text/css" media="screen" />
+    <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css" type="text/css" media="screen" />
   </head>
+
   <body>
     <!-- Load local D3.js and jQuery -->
-    <script type="text/javascript" src="../js/d3.min.js" charset="utf-8"></script>
-    <script type="text/javascript" src="../js/jquery.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="../node_modules/jquery/dist/jquery.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="../node_modules/bootstrap/dist/js/bootstrap.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="../node_modules/d3/build/d3.min.js" charset="utf-8"></script>
     <script type="text/javascript" src="../js/custom.js" charset="utf-8"></script>
     <script type="text/javascript" charset="utf-8">
     //<![CDATA[
@@ -128,18 +130,16 @@
                   })
               });
 
-              var x = d3.scale.linear()
+              var x = d3.scaleLinear()
                   .domain([0, maxProtLen])
                   .range([0, width])
                   .nice();
 
-              var xAxis = d3.svg.axis()
-                  .scale(x)
-                  .orient("bottom");
+              var xAxis = d3.axisBottom(x);
 
-              var y0 = d3.scale.ordinal()
+              var y0 = d3.scaleBand()
                   .domain(protIds)
-                  .rangeRoundBands([0, height]);
+                  .rangeRound([0, height]);
 
               var fmtype = (maxProtLen > 1000) ? '.2s' : 'd';
 
@@ -155,8 +155,8 @@
               d3.select('svg').remove();
               
               var svg = d3.select('#pepmap').append('svg')
-                  .attr('xmlns', d3.ns.prefix.svg)
-                  .attr('xmlns:xmlns:xlink', d3.ns.prefix.xlink) // hack: doubling 'xmlns' so it doesn't dissapear from DOM
+                  .attr('xmlns', d3.namespaces.svg)
+                  .attr('xmlns:xlink', d3.namespaces.xlink)
                   .attr('width', width + margin.left + margin.right)
                   .attr('height', height + margin.top + margin.bottom)
                   .attr('style', 'background-color: white')
