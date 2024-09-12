@@ -243,12 +243,12 @@
     <div class="well">
       <div>
         <label for="exp1">Experiment 1:&nbsp;</label>
-        <select class="exp1" py:if="exp_names">
+        <select class="exp1" id="exp1" py:if="exp_names">
           <option py:for="exp in exp_names" value="${exp}">${exp}</option>
         </select>&nbsp;
 
         <label for="ratio1">norm. protein ratio:&nbsp;</label>
-        <select class="ratio1" py:if="ratio_types">
+        <select class="ratio1" id="ratio1" py:if="ratio_types">
           <option py:for="ratio_type in ratio_types" value="${ratio_type}">${ratio_type}</option>
         </select>&nbsp;on horizontal x-axis
         <button style="float: right;" class="btn btn-primary" id="btn_show">Show</button>
@@ -256,12 +256,12 @@
 
       <div>
         <label for="exp2">Experiment 2:&nbsp;</label>
-        <select class="exp2" py:if="exp_names">
+        <select class="exp2" id="exp2" py:if="exp_names">
           <option py:for="exp_name in exp_names" value="${exp_name}">${exp_name}</option>
         </select>&nbsp;
 
         <label for="ratio2">norm. protein ratio:&nbsp;</label>
-        <select class="ratio2" py:if="ratio_types">
+        <select class="ratio2" id="ratio2" py:if="ratio_types">
           <option py:for="ratio_type in ratio_types" value="${ratio_type}">${ratio_type}</option>
         </select>&nbsp;on vertical y-axis
       </div>
