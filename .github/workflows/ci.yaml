@@ -20,12 +20,12 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Run workflow
+      - name: Run web app in docker
         run: |
           docker run -d -p 8080:8080 ${REGISTRY}/${GITHUB_REPOSITORY_OWNER,,}/${NAME}:${TAG}
           sleep 10
           docker ps
-      - name: Test endpoints
+      - name: Test web app endpoints
         run: |
           HTTP_CODE=$(curl -I  "${BASE_URL}/results/${DATA}" | grep HTTP  | cut -f 2 -d " ")
           echo $HTTP_CODE
