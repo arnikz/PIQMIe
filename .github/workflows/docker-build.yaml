@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       REGISTRY: ghcr.io
-      GIT_COMMIT: "c7a9c25"
+      GIT_COMMIT: "0ae06f0"
       TAG: 1.1.0
       NAME: piqmie
     steps:
