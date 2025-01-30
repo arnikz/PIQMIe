@@ -24,6 +24,7 @@ jobs:
         run: |
           echo "IMG_TAG=${REGISTRY}/${GITHUB_REPOSITORY_OWNER,,}/${NAME}:${TAG}" >> ${GITHUB_ENV}
       - name: Download sample data from Zenodo
+        working-directory: ./data
         run: |
           pip install zenodo_get
           zenodo_get $DOI
