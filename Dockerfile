@@ -3,7 +3,7 @@ LABEL description="PIQMIe: Proteomics Identifications & Quantitations Data Manag
 LABEL maintainer="Arnold Kuzniar"
 LABEL email="arnold.kuzniar@gmail.com"
 LABEL orcid="0000-0003-1711-7961"
-LABEL version="1.1.0"
+LABEL version="1.1.1"
 
 RUN apk add perl python2 py2-pip py2-setuptools libmagic py2-cairo curl sqlite jq
 
@@ -15,7 +15,7 @@ RUN pip install -r requirements.txt && \
     npm install && \
     mkdir -p /var/log/piqmie
 WORKDIR ./data
-RUN tar xvf *.tar.bz2
+RUN unzip sampledata.zip
 WORKDIR /tmp
 EXPOSE 8080
 ENTRYPOINT ["cherryd", "-i", "PIQMIe", "-c", "PIQMIe/config.ini"]
