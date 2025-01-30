@@ -7,9 +7,10 @@ jobs:
     runs-on: ubuntu-latest
     env:
       REGISTRY: ghcr.io
-      GIT_COMMIT: "617a32d"
+      GIT_COMMIT: "fb902c1"
       TAG: 1.1.0
       NAME: piqmie
+      DOI: 10.5281/zenodo.14773287
     steps:
       - name: Check out repo
         uses: actions/checkout@v2
@@ -22,6 +23,10 @@ jobs:
       - name: Set image name
         run: |
           echo "IMG_TAG=${REGISTRY}/${GITHUB_REPOSITORY_OWNER,,}/${NAME}:${TAG}" >> ${GITHUB_ENV}
+      - name: Download sample data from Zenodo
+        run: |
+          pip install zenodo_get
+          zenodo_get $DOI
       - name: Build Docker image
         run: |
           docker build --build-arg GIT_COMMIT=$GIT_COMMIT -t $IMG_TAG .
