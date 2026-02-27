@@ -2,7 +2,7 @@
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.594144.svg)](https://doi.org/10.5281/zenodo.594144)
 [![Published in NAR](https://img.shields.io/badge/published%20in-NAR-blue.svg)](https://doi.org/10.1093/nar/gku478)
-[![CI](https://github.com/arnikz/PIQMIe/actions/workflows/ci.yaml/badge.svg?branch=dev)](https://github.com/arnikz/PIQMIe/actions/workflows/ci.yaml)
+[![CI](https://github.com/arnikz/PIQMIe/actions/workflows/ci.yaml/badge.svg)](https://github.com/arnikz/PIQMIe/actions/workflows/ci.yaml)
 
 ## Description
 
